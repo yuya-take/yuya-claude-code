@@ -1,6 +1,6 @@
 # Everything Claude Code
 
-[![Stars](https://img.shields.io/github/stars/affaan-m/everything-claude-code?style=flat)](https://github.com/affaan-m/everything-claude-code/stargazers)
+[![Stars](https://img.shields.io/github/stars/yuya-take/yuya-claude-code?style=flat)](https://github.com/yuya-take/yuya-claude-code/stargazers)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 ![Shell](https://img.shields.io/badge/-Shell-4EAA25?logo=gnu-bash&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -86,7 +86,7 @@ Or use the `/setup-pm` command in Claude Code.
 This repo is a **Claude Code plugin** - install it directly or copy components manually.
 
 ```
-everything-claude-code/
+yuya-claude-code/
 |-- .claude-plugin/   # Plugin and marketplace manifests
 |   |-- plugin.json         # Plugin metadata and component paths
 |   |-- marketplace.json    # Marketplace catalog for /plugin marketplace add
@@ -180,10 +180,10 @@ The easiest way to use this repo - install as a Claude Code plugin:
 
 ```bash
 # Add this repo as a marketplace
-/plugin marketplace add affaan-m/everything-claude-code
+/plugin marketplace add yuya-take/yuya-claude-code
 
 # Install the plugin
-/plugin install everything-claude-code@everything-claude-code
+/plugin install yuya-claude-code@yuya-claude-code
 ```
 
 Or add directly to your `~/.claude/settings.json`:
@@ -191,15 +191,15 @@ Or add directly to your `~/.claude/settings.json`:
 ```json
 {
   "extraKnownMarketplaces": {
-    "everything-claude-code": {
+    "yuya-claude-code": {
       "source": {
         "source": "github",
-        "repo": "affaan-m/everything-claude-code"
+        "repo": "yuya-take/yuya-claude-code"
       }
     }
   },
   "enabledPlugins": {
-    "everything-claude-code@everything-claude-code": true
+    "yuya-claude-code@yuya-claude-code": true
   }
 }
 ```
@@ -214,19 +214,19 @@ If you prefer manual control over what's installed:
 
 ```bash
 # Clone the repo
-git clone https://github.com/affaan-m/everything-claude-code.git
+git clone https://github.com/yuya-take/yuya-claude-code.git
 
 # Copy agents to your Claude config
-cp everything-claude-code/agents/*.md ~/.claude/agents/
+cp yuya-claude-code/agents/*.md ~/.claude/agents/
 
 # Copy rules
-cp everything-claude-code/rules/*.md ~/.claude/rules/
+cp yuya-claude-code/rules/*.md ~/.claude/rules/
 
 # Copy commands
-cp everything-claude-code/commands/*.md ~/.claude/commands/
+cp yuya-claude-code/commands/*.md ~/.claude/commands/
 
 # Copy skills
-cp -r everything-claude-code/skills/* ~/.claude/skills/
+cp -r yuya-claude-code/skills/* ~/.claude/skills/
 ```
 
 #### Add hooks to settings.json
@@ -370,7 +370,7 @@ These configs work for my workflow. You should:
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=affaan-m/everything-claude-code&type=Date)](https://star-history.com/#affaan-m/everything-claude-code&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=yuya-take/yuya-claude-code&type=Date)](https://star-history.com/#yuya-take/yuya-claude-code&Date)
 
 ---
 
