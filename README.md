@@ -1,192 +1,111 @@
-# Everything Claude Code
+# yuya-claude-code
 
-[![Stars](https://img.shields.io/github/stars/yuya-take/yuya-claude-code?style=flat)](https://github.com/yuya-take/yuya-claude-code/stargazers)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-![Shell](https://img.shields.io/badge/-Shell-4EAA25?logo=gnu-bash&logoColor=white)
-![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white)
-![Markdown](https://img.shields.io/badge/-Markdown-000000?logo=markdown&logoColor=white)
+Claude Code用の設定集。agents, skills, hooks, commands, rules, MCP設定をまとめたプラグイン。
 
-**The complete collection of Claude Code configs from an Anthropic hackathon winner.**
-
-Production-ready agents, skills, hooks, commands, rules, and MCP configurations evolved over 10+ months of intensive daily use building real products.
+> このリポジトリは [affaanmustafa/everything-claude-code](https://github.com/affaanmustafa/everything-claude-code) をフォークし、自分用にカスタマイズしたものです。
 
 ---
 
-## The Guides
-
-This repo is the raw code only. The guides explain everything.
-
-<table>
-<tr>
-<td width="50%">
-<a href="https://x.com/affaanmustafa/status/2012378465664745795">
-<img src="https://github.com/user-attachments/assets/1a471488-59cc-425b-8345-5245c7efbcef" alt="The Shorthand Guide to Everything Claude Code" />
-</a>
-</td>
-<td width="50%">
-<a href="https://x.com/affaanmustafa/status/2014040193557471352">
-<img src="https://github.com/user-attachments/assets/c9ca43bc-b149-427f-b551-af6840c368f0" alt="The Longform Guide to Everything Claude Code" />
-</a>
-</td>
-</tr>
-<tr>
-<td align="center"><b>Shorthand Guide</b><br/>Setup, foundations, philosophy. <b>Read this first.</b></td>
-<td align="center"><b>Longform Guide</b><br/>Token optimization, memory persistence, evals, parallelization.</td>
-</tr>
-</table>
-
-| Topic | What You'll Learn |
-|-------|-------------------|
-| Token Optimization | Model selection, system prompt slimming, background processes |
-| Memory Persistence | Hooks that save/load context across sessions automatically |
-| Continuous Learning | Auto-extract patterns from sessions into reusable skills |
-| Verification Loops | Checkpoint vs continuous evals, grader types, pass@k metrics |
-| Parallelization | Git worktrees, cascade method, when to scale instances |
-| Subagent Orchestration | The context problem, iterative retrieval pattern |
-
----
-
-## Cross-Platform Support
-
-This plugin now fully supports **Windows, macOS, and Linux**. All hooks and scripts have been rewritten in Node.js for maximum compatibility.
-
-### Package Manager Detection
-
-The plugin automatically detects your preferred package manager (npm, pnpm, yarn, or bun) with the following priority:
-
-1. **Environment variable**: `CLAUDE_PACKAGE_MANAGER`
-2. **Project config**: `.claude/package-manager.json`
-3. **package.json**: `packageManager` field
-4. **Lock file**: Detection from package-lock.json, yarn.lock, pnpm-lock.yaml, or bun.lockb
-5. **Global config**: `~/.claude/package-manager.json`
-6. **Fallback**: First available package manager
-
-To set your preferred package manager:
-
-```bash
-# Via environment variable
-export CLAUDE_PACKAGE_MANAGER=pnpm
-
-# Via global config
-node scripts/setup-package-manager.js --global pnpm
-
-# Via project config
-node scripts/setup-package-manager.js --project bun
-
-# Detect current setting
-node scripts/setup-package-manager.js --detect
-```
-
-Or use the `/setup-pm` command in Claude Code.
-
----
-
-## What's Inside
-
-This repo is a **Claude Code plugin** - install it directly or copy components manually.
+## 構成
 
 ```
 yuya-claude-code/
-|-- .claude-plugin/   # Plugin and marketplace manifests
-|   |-- plugin.json         # Plugin metadata and component paths
-|   |-- marketplace.json    # Marketplace catalog for /plugin marketplace add
+|-- .claude-plugin/   # プラグイン・マーケットプレース設定
+|   |-- plugin.json         # プラグインメタデータとコンポーネントパス
+|   |-- marketplace.json    # マーケットプレースカタログ
 |
-|-- agents/           # Specialized subagents for delegation
-|   |-- planner.md           # Feature implementation planning
-|   |-- architect.md         # System design decisions
-|   |-- tdd-guide.md         # Test-driven development
-|   |-- code-reviewer.md     # Quality and security review
-|   |-- security-reviewer.md # Vulnerability analysis
+|-- agents/           # 特化型サブエージェント
+|   |-- planner.md           # 機能実装計画
+|   |-- architect.md         # システム設計判断
+|   |-- tdd-guide.md         # テスト駆動開発
+|   |-- code-reviewer.md     # 品質・セキュリティレビュー
+|   |-- security-reviewer.md # 脆弱性分析
 |   |-- build-error-resolver.md
-|   |-- e2e-runner.md        # Playwright E2E testing
-|   |-- refactor-cleaner.md  # Dead code cleanup
-|   |-- doc-updater.md       # Documentation sync
+|   |-- e2e-runner.md        # Playwright E2Eテスト
+|   |-- refactor-cleaner.md  # 不要コード削除
+|   |-- doc-updater.md       # ドキュメント同期
 |
-|-- skills/           # Workflow definitions and domain knowledge
-|   |-- coding-standards/           # Language best practices
-|   |-- backend-patterns/           # API, database, caching patterns
-|   |-- frontend-patterns/          # React, Next.js patterns
-|   |-- continuous-learning/        # Auto-extract patterns from sessions (Longform Guide)
-|   |-- strategic-compact/          # Manual compaction suggestions (Longform Guide)
-|   |-- tdd-workflow/               # TDD methodology
-|   |-- security-review/            # Security checklist
-|   |-- eval-harness/               # Verification loop evaluation (Longform Guide)
-|   |-- verification-loop/          # Continuous verification (Longform Guide)
+|-- skills/           # ワークフロー定義・ドメイン知識
+|   |-- coding-standards/           # 言語別ベストプラクティス
+|   |-- backend-patterns/           # API, データベース, キャッシュパターン
+|   |-- frontend-patterns/          # React, Next.jsパターン
+|   |-- continuous-learning/        # セッションからパターン自動抽出
+|   |-- strategic-compact/          # 手動コンパクション提案
+|   |-- tdd-workflow/               # TDD手法
+|   |-- security-review/            # セキュリティチェックリスト
+|   |-- eval-harness/               # 検証ループ評価
+|   |-- verification-loop/          # 継続的検証
 |
-|-- commands/         # Slash commands for quick execution
-|   |-- tdd.md              # /tdd - Test-driven development
-|   |-- plan.md             # /plan - Implementation planning
-|   |-- e2e.md              # /e2e - E2E test generation
-|   |-- code-review.md      # /code-review - Quality review
-|   |-- build-fix.md        # /build-fix - Fix build errors
-|   |-- refactor-clean.md   # /refactor-clean - Dead code removal
-|   |-- learn.md            # /learn - Extract patterns mid-session (Longform Guide)
-|   |-- checkpoint.md       # /checkpoint - Save verification state (Longform Guide)
-|   |-- verify.md           # /verify - Run verification loop (Longform Guide)
-|   |-- setup-pm.md         # /setup-pm - Configure package manager (NEW)
+|-- commands/         # スラッシュコマンド
+|   |-- tdd.md              # /tdd - テスト駆動開発
+|   |-- plan.md             # /plan - 実装計画
+|   |-- e2e.md              # /e2e - E2Eテスト生成
+|   |-- code-review.md      # /code-review - 品質レビュー
+|   |-- build-fix.md        # /build-fix - ビルドエラー修正
+|   |-- refactor-clean.md   # /refactor-clean - 不要コード削除
+|   |-- learn.md            # /learn - セッション中パターン抽出
+|   |-- checkpoint.md       # /checkpoint - 検証状態保存
+|   |-- verify.md           # /verify - 検証ループ実行
+|   |-- setup-pm.md         # /setup-pm - パッケージマネージャー設定
 |
-|-- rules/            # Always-follow guidelines (copy to ~/.claude/rules/)
-|   |-- security.md         # Mandatory security checks
-|   |-- coding-style.md     # Immutability, file organization
-|   |-- testing.md          # TDD, 80% coverage requirement
-|   |-- git-workflow.md     # Commit format, PR process
-|   |-- agents.md           # When to delegate to subagents
-|   |-- performance.md      # Model selection, context management
+|-- rules/            # 常時適用ルール（~/.claude/rules/にコピー）
+|   |-- security.md         # 必須セキュリティチェック
+|   |-- coding-style.md     # イミュータビリティ、ファイル構成
+|   |-- testing.md          # TDD、80%カバレッジ要件
+|   |-- git-workflow.md     # コミット形式、PRプロセス
+|   |-- agents.md           # サブエージェント委譲タイミング
+|   |-- performance.md      # モデル選択、コンテキスト管理
 |
-|-- hooks/            # Trigger-based automations
-|   |-- hooks.json                # All hooks config (PreToolUse, PostToolUse, Stop, etc.)
-|   |-- memory-persistence/       # Session lifecycle hooks (Longform Guide)
-|   |-- strategic-compact/        # Compaction suggestions (Longform Guide)
+|-- hooks/            # トリガーベース自動化
+|   |-- hooks.json                # 全フック設定（PreToolUse, PostToolUse, Stop等）
+|   |-- memory-persistence/       # セッションライフサイクルフック
+|   |-- strategic-compact/        # コンパクション提案
 |
-|-- scripts/          # Cross-platform Node.js scripts (NEW)
-|   |-- lib/                     # Shared utilities
-|   |   |-- utils.js             # Cross-platform file/path/system utilities
-|   |   |-- package-manager.js   # Package manager detection and selection
-|   |-- hooks/                   # Hook implementations
-|   |   |-- session-start.js     # Load context on session start
-|   |   |-- session-end.js       # Save state on session end
-|   |   |-- pre-compact.js       # Pre-compaction state saving
-|   |   |-- suggest-compact.js   # Strategic compaction suggestions
-|   |   |-- evaluate-session.js  # Extract patterns from sessions
-|   |-- setup-package-manager.js # Interactive PM setup
+|-- scripts/          # クロスプラットフォームNode.jsスクリプト
+|   |-- lib/                     # 共有ユーティリティ
+|   |   |-- utils.js             # ファイル/パス/システムユーティリティ
+|   |   |-- package-manager.js   # パッケージマネージャー検出・選択
+|   |-- hooks/                   # フック実装
+|   |   |-- session-start.js     # セッション開始時コンテキスト読み込み
+|   |   |-- session-end.js       # セッション終了時状態保存
+|   |   |-- pre-compact.js       # コンパクション前状態保存
+|   |   |-- suggest-compact.js   # 戦略的コンパクション提案
+|   |   |-- evaluate-session.js  # セッションからパターン抽出
+|   |-- setup-package-manager.js # 対話式PM設定
 |
-|-- tests/            # Test suite (NEW)
-|   |-- lib/                     # Library tests
-|   |-- hooks/                   # Hook tests
-|   |-- run-all.js               # Run all tests
+|-- tests/            # テストスイート
+|   |-- lib/                     # ライブラリテスト
+|   |-- hooks/                   # フックテスト
+|   |-- run-all.js               # 全テスト実行
 |
-|-- contexts/         # Dynamic system prompt injection contexts (Longform Guide)
-|   |-- dev.md              # Development mode context
-|   |-- review.md           # Code review mode context
-|   |-- research.md         # Research/exploration mode context
+|-- contexts/         # 動的システムプロンプト注入コンテキスト
+|   |-- dev.md              # 開発モードコンテキスト
+|   |-- review.md           # コードレビューモードコンテキスト
+|   |-- research.md         # リサーチ/探索モードコンテキスト
 |
-|-- examples/         # Example configurations and sessions
-|   |-- CLAUDE.md           # Example project-level config
-|   |-- user-CLAUDE.md      # Example user-level config
+|-- examples/         # 設定例・セッション例
+|   |-- CLAUDE.md           # プロジェクトレベル設定例
+|   |-- user-CLAUDE.md      # ユーザーレベル設定例
 |
-|-- mcp-configs/      # MCP server configurations
-|   |-- mcp-servers.json    # GitHub, Supabase, Vercel, Railway, etc.
-|
-|-- marketplace.json  # Self-hosted marketplace config (for /plugin marketplace add)
+|-- mcp-configs/      # MCPサーバー設定
+|   |-- mcp-servers.json    # GitHub, Supabase, Vercel, Railway等
 ```
 
 ---
 
-## Installation
+## インストール
 
-### Option 1: Install as Plugin (Recommended)
-
-The easiest way to use this repo - install as a Claude Code plugin:
+### プラグインとしてインストール（推奨）
 
 ```bash
-# Add this repo as a marketplace
+# マーケットプレースに追加
 /plugin marketplace add yuya-take/yuya-claude-code
 
-# Install the plugin
+# プラグインをインストール
 /plugin install yuya-claude-code@yuya-claude-code
 ```
 
-Or add directly to your `~/.claude/settings.json`:
+または `~/.claude/settings.json` に直接追加：
 
 ```json
 {
@@ -204,77 +123,54 @@ Or add directly to your `~/.claude/settings.json`:
 }
 ```
 
-This gives you instant access to all commands, agents, skills, and hooks.
-
----
-
-### Option 2: Manual Installation
-
-If you prefer manual control over what's installed:
+### 手動インストール
 
 ```bash
-# Clone the repo
 git clone https://github.com/yuya-take/yuya-claude-code.git
 
-# Copy agents to your Claude config
+# 必要なものをコピー
 cp yuya-claude-code/agents/*.md ~/.claude/agents/
-
-# Copy rules
 cp yuya-claude-code/rules/*.md ~/.claude/rules/
-
-# Copy commands
 cp yuya-claude-code/commands/*.md ~/.claude/commands/
-
-# Copy skills
 cp -r yuya-claude-code/skills/* ~/.claude/skills/
 ```
 
-#### Add hooks to settings.json
-
-Copy the hooks from `hooks/hooks.json` to your `~/.claude/settings.json`.
-
-#### Configure MCPs
-
-Copy desired MCP servers from `mcp-configs/mcp-servers.json` to your `~/.claude.json`.
-
-**Important:** Replace `YOUR_*_HERE` placeholders with your actual API keys.
+hooksは `hooks/hooks.json` から `~/.claude/settings.json` にコピー。
+MCPは `mcp-configs/mcp-servers.json` から `~/.claude.json` にコピー（APIキーは要置換）。
 
 ---
 
-## Key Concepts
+## 主な概念
 
 ### Agents
-
-Subagents handle delegated tasks with limited scope. Example:
+限定スコープでタスクを処理するサブエージェント。
 
 ```markdown
 ---
 name: code-reviewer
-description: Reviews code for quality, security, and maintainability
+description: コードの品質・セキュリティ・保守性をレビュー
 tools: Read, Grep, Glob, Bash
 model: opus
 ---
 
-You are a senior code reviewer...
+あなたはシニアコードレビュアーです...
 ```
 
 ### Skills
-
-Skills are workflow definitions invoked by commands or agents:
+コマンドやエージェントから呼び出されるワークフロー定義。
 
 ```markdown
 # TDD Workflow
 
-1. Define interfaces first
-2. Write failing tests (RED)
-3. Implement minimal code (GREEN)
-4. Refactor (IMPROVE)
-5. Verify 80%+ coverage
+1. インターフェース定義
+2. 失敗するテスト作成（RED）
+3. 最小限の実装（GREEN）
+4. リファクタリング（IMPROVE）
+5. 80%以上のカバレッジ確認
 ```
 
 ### Hooks
-
-Hooks fire on tool events. Example - warn about console.log:
+ツールイベントで発火する自動化。
 
 ```json
 {
@@ -287,27 +183,24 @@ Hooks fire on tool events. Example - warn about console.log:
 ```
 
 ### Rules
-
-Rules are always-follow guidelines. Keep them modular:
+常時適用ガイドライン。モジュール化して管理。
 
 ```
 ~/.claude/rules/
-  security.md      # No hardcoded secrets
-  coding-style.md  # Immutability, file limits
-  testing.md       # TDD, coverage requirements
+  security.md      # シークレットハードコード禁止
+  coding-style.md  # イミュータビリティ、ファイル制限
+  testing.md       # TDD、カバレッジ要件
 ```
 
 ---
 
-## Running Tests
-
-The plugin includes a comprehensive test suite:
+## テスト
 
 ```bash
-# Run all tests
+# 全テスト実行
 node tests/run-all.js
 
-# Run individual test files
+# 個別テスト
 node tests/lib/utils.test.js
 node tests/lib/package-manager.test.js
 node tests/hooks/hooks.test.js
@@ -315,78 +208,42 @@ node tests/hooks/hooks.test.js
 
 ---
 
-## Contributing
+## パッケージマネージャー検出
 
-**Contributions are welcome and encouraged.**
+プラグインは自動でパッケージマネージャー（npm, pnpm, yarn, bun）を検出。優先順位：
 
-This repo is meant to be a community resource. If you have:
-- Useful agents or skills
-- Clever hooks
-- Better MCP configurations
-- Improved rules
+1. 環境変数: `CLAUDE_PACKAGE_MANAGER`
+2. プロジェクト設定: `.claude/package-manager.json`
+3. package.json: `packageManager`フィールド
+4. ロックファイル検出
+5. グローバル設定: `~/.claude/package-manager.json`
+6. フォールバック: 利用可能な最初のPM
 
-Please contribute! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+```bash
+# 設定
+node scripts/setup-package-manager.js --project pnpm
 
-### Ideas for Contributions
-
-- Language-specific skills (Python, Go, Rust patterns)
-- Framework-specific configs (Django, Rails, Laravel)
-- DevOps agents (Kubernetes, Terraform, AWS)
-- Testing strategies (different frameworks)
-- Domain-specific knowledge (ML, data engineering, mobile)
-
----
-
-## Background
-
-I've been using Claude Code since the experimental rollout. Won the Anthropic x Forum Ventures hackathon in Sep 2025 building [zenith.chat](https://zenith.chat) with [@DRodriguezFX](https://x.com/DRodriguezFX) - entirely using Claude Code.
-
-These configs are battle-tested across multiple production applications.
+# 検出確認
+node scripts/setup-package-manager.js --detect
+```
 
 ---
 
-## Important Notes
+## 注意事項
 
-### Context Window Management
+### コンテキストウィンドウ管理
 
-**Critical:** Don't enable all MCPs at once. Your 200k context window can shrink to 70k with too many tools enabled.
+MCPを全て有効にすると200kのコンテキストが70kまで圧迫される可能性あり。
 
-Rule of thumb:
-- Have 20-30 MCPs configured
-- Keep under 10 enabled per project
-- Under 80 tools active
+推奨：
+- 20-30個のMCPを設定
+- プロジェクトごとに10個以下を有効化
+- 80ツール以下をアクティブに
 
-Use `disabledMcpServers` in project config to disable unused ones.
-
-### Customization
-
-These configs work for my workflow. You should:
-1. Start with what resonates
-2. Modify for your stack
-3. Remove what you don't use
-4. Add your own patterns
+`disabledMcpServers`でプロジェクト単位で無効化。
 
 ---
 
-## Star History
+## ライセンス
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yuya-take/yuya-claude-code&type=Date)](https://star-history.com/#yuya-take/yuya-claude-code&Date)
-
----
-
-## Links
-
-- **Shorthand Guide (Start Here):** [The Shorthand Guide to Everything Claude Code](https://x.com/affaanmustafa/status/2012378465664745795)
-- **Longform Guide (Advanced):** [The Longform Guide to Everything Claude Code](https://x.com/affaanmustafa/status/2014040193557471352)
-- **Follow:** [@affaanmustafa](https://x.com/affaanmustafa)
-- **zenith.chat:** [zenith.chat](https://zenith.chat)
-
----
-
-## License
-
-MIT - Use freely, modify as needed, contribute back if you can.
-
----
-
-**Star this repo if it helps. Read both guides. Build something great.**
+MIT

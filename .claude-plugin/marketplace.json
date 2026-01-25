@@ -1,19 +1,18 @@
 {
   "name": "yuya-claude-code",
   "owner": {
-    "name": "Affaan Mustafa",
-    "email": "affaan@example.com"
+    "name": "yuya-take"
   },
   "metadata": {
-    "description": "Battle-tested Claude Code configurations from an Anthropic hackathon winner"
+    "description": "Claude Code用の設定集"
   },
   "plugins": [
     {
       "name": "yuya-claude-code",
       "source": "./",
-      "description": "Complete collection of agents, skills, hooks, commands, and rules evolved over 10+ months of intensive daily use",
+      "description": "agents, skills, hooks, commands, rulesをまとめたプラグイン",
       "author": {
-        "name": "Affaan Mustafa"
+        "name": "yuya-take"
       },
       "homepage": "https://github.com/yuya-take/yuya-claude-code",
       "repository": "https://github.com/yuya-take/yuya-claude-code",
@@ -25,8 +24,7 @@
         "commands",
         "tdd",
         "code-review",
-        "security",
-        "best-practices"
+        "workflow"
       ],
       "category": "workflow",
       "tags": [
@@ -36,8 +34,7 @@
         "commands",
         "tdd",
         "code-review",
-        "security",
-        "best-practices"
+        "workflow"
       ]
     }
   ]
