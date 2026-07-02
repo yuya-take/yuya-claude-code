@@ -1,0 +1,10 @@
+{
+  "name": "my-claude-code",
+  "description": "GitLab / GitHub 対応の実戦用セット: レビュー系 agents (10種) と開発ワークフロー skills (20種)、自動フォーマット hook",
+  "author": {
+    "name": "yuya-take"
+  },
+  "homepage": "https://github.com/yuya-take/yuya-claude-code",
+  "repository": "https://github.com/yuya-take/yuya-claude-code",
+  "keywords": ["code-review", "gitlab", "github", "workflow", "clean-architecture"]
+}

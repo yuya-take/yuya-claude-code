@@ -1,249 +1,165 @@
 # yuya-claude-code
 
-Claude Code用の設定集。agents, skills, hooks, commands, rules, MCP設定をまとめたプラグイン。
+自分用の Claude Code プラグインマーケットプレイスです。
 
-> このリポジトリは [affaanmustafa/everything-claude-code](https://github.com/affaanmustafa/everything-claude-code) をフォークし、自分用にカスタマイズしたものです。
+実戦投入されている agents, skills, rules, hooks をベースにしています。
 
 ---
 
 ## 構成
 
-```
-yuya-claude-code/
-|-- .claude-plugin/   # プラグイン・マーケットプレース設定
-|   |-- plugin.json         # プラグインメタデータとコンポーネントパス
-|   |-- marketplace.json    # マーケットプレースカタログ
-|
-|-- agents/           # 特化型サブエージェント
-|   |-- planner.md           # 機能実装計画
-|   |-- architect.md         # システム設計判断
-|   |-- tdd-guide.md         # テスト駆動開発
-|   |-- code-reviewer.md     # 品質・セキュリティレビュー
-|   |-- security-reviewer.md # 脆弱性分析
-|   |-- build-error-resolver.md
-|   |-- e2e-runner.md        # Playwright E2Eテスト
-|   |-- refactor-cleaner.md  # 不要コード削除
-|   |-- doc-updater.md       # ドキュメント同期
-|
-|-- skills/           # ワークフロー定義・ドメイン知識
-|   |-- coding-standards/           # 言語別ベストプラクティス
-|   |-- backend-patterns/           # API, データベース, キャッシュパターン
-|   |-- frontend-patterns/          # React, Next.jsパターン
-|   |-- continuous-learning/        # セッションからパターン自動抽出
-|   |-- strategic-compact/          # 手動コンパクション提案
-|   |-- tdd-workflow/               # TDD手法
-|   |-- security-review/            # セキュリティチェックリスト
-|   |-- eval-harness/               # 検証ループ評価
-|   |-- verification-loop/          # 継続的検証
-|
-|-- commands/         # スラッシュコマンド
-|   |-- tdd.md              # /tdd - テスト駆動開発
-|   |-- plan.md             # /plan - 実装計画
-|   |-- e2e.md              # /e2e - E2Eテスト生成
-|   |-- code-review.md      # /code-review - 品質レビュー
-|   |-- build-fix.md        # /build-fix - ビルドエラー修正
-|   |-- refactor-clean.md   # /refactor-clean - 不要コード削除
-|   |-- learn.md            # /learn - セッション中パターン抽出
-|   |-- checkpoint.md       # /checkpoint - 検証状態保存
-|   |-- verify.md           # /verify - 検証ループ実行
-|   |-- setup-pm.md         # /setup-pm - パッケージマネージャー設定
-|
-|-- rules/            # 常時適用ルール（~/.claude/rules/にコピー）
-|   |-- security.md         # 必須セキュリティチェック
-|   |-- coding-style.md     # イミュータビリティ、ファイル構成
-|   |-- testing.md          # TDD、80%カバレッジ要件
-|   |-- git-workflow.md     # コミット形式、PRプロセス
-|   |-- agents.md           # サブエージェント委譲タイミング
-|   |-- performance.md      # モデル選択、コンテキスト管理
-|
-|-- hooks/            # トリガーベース自動化
-|   |-- hooks.json                # 全フック設定（PreToolUse, PostToolUse, Stop等）
-|   |-- memory-persistence/       # セッションライフサイクルフック
-|   |-- strategic-compact/        # コンパクション提案
-|
-|-- scripts/          # クロスプラットフォームNode.jsスクリプト
-|   |-- lib/                     # 共有ユーティリティ
-|   |   |-- utils.js             # ファイル/パス/システムユーティリティ
-|   |   |-- package-manager.js   # パッケージマネージャー検出・選択
-|   |-- hooks/                   # フック実装
-|   |   |-- session-start.js     # セッション開始時コンテキスト読み込み
-|   |   |-- session-end.js       # セッション終了時状態保存
-|   |   |-- pre-compact.js       # コンパクション前状態保存
-|   |   |-- suggest-compact.js   # 戦略的コンパクション提案
-|   |   |-- evaluate-session.js  # セッションからパターン抽出
-|   |-- setup-package-manager.js # 対話式PM設定
-|
-|-- tests/            # テストスイート
-|   |-- lib/                     # ライブラリテスト
-|   |-- hooks/                   # フックテスト
-|   |-- run-all.js               # 全テスト実行
-|
-|-- contexts/         # 動的システムプロンプト注入コンテキスト
-|   |-- dev.md              # 開発モードコンテキスト
-|   |-- review.md           # コードレビューモードコンテキスト
-|   |-- research.md         # リサーチ/探索モードコンテキスト
-|
-|-- examples/         # 設定例・セッション例
-|   |-- CLAUDE.md           # プロジェクトレベル設定例
-|   |-- user-CLAUDE.md      # ユーザーレベル設定例
-|
-|-- mcp-configs/      # MCPサーバー設定
-|   |-- mcp-servers.json    # GitHub, Supabase, Vercel, Railway等
+```text
+yuya-claude-code/            # マーケットプレイス (このリポジトリ)
+├── .claude-plugin/
+│   └── marketplace.json     # マーケットプレイスカタログ
+├── my-claude-code/          # プラグイン本体
+│   ├── .claude-plugin/
+│   │   └── plugin.json      # プラグインマニフェスト
+│   ├── agents/              # 専門エージェント (10種)
+│   ├── skills/              # ワークフロー (20種)
+│   ├── hooks/               # 自動フォーマット (hooks.json + format-file.sh)
+│   ├── rules/               # 常時適用ガイドライン (9種) ※ /setup で展開
+│   └── templates/
+│       └── settings.json    # permissions テンプレート ※ /setup で展開
+└── mcp/                     # 将来追加する MCP サーバー用 (mcp/README.md 参照)
 ```
 
 ---
 
-## インストール
+## 前提条件
 
-### プラグインとしてインストール（推奨）
+- リモート連携 CLI がインストール・認証済みであること（リモート URL から自動判定されます）
+  - **GitLab**: [`glab` CLI](https://gitlab.com/gitlab-org/cli)
+  - **GitHub**: [`gh` CLI](https://cli.github.com/)
+- **develop** ブランチをデフォルトブランチとして運用していること（違う場合は `/my-claude-code:init` で調整）
 
-```bash
-# マーケットプレースに追加
+> CLI が未導入の場合、`/my-claude-code:mr`, `/my-claude-code:issue-create`, `/my-claude-code:dev-wt`, `/my-claude-code:dev-bc`, `/my-claude-code:slack-issue` 等のリモート連携スキルが動作しません。
+
+---
+
+## セットアップ
+
+### 1. プラグインのインストール (agents / skills / hooks)
+
+Claude Code 内で以下を実行:
+
+```shell
 /plugin marketplace add yuya-take/yuya-claude-code
-
-# プラグインをインストール
-/plugin install yuya-claude-code@yuya-claude-code
+/plugin install my-claude-code@yuya-claude-code
 ```
 
-または `~/.claude/settings.json` に直接追加：
+スキルは `my-claude-code` でネームスペース化されます (例: `/my-claude-code:code-review`)。
 
-```json
-{
-  "extraKnownMarketplaces": {
-    "yuya-claude-code": {
-      "source": {
-        "source": "github",
-        "repo": "yuya-take/yuya-claude-code"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "yuya-claude-code@yuya-claude-code": true
-  }
-}
+更新は `/plugin marketplace update yuya-claude-code` → `/plugin update my-claude-code@yuya-claude-code`、または自動更新に任せます。
+
+### 2. rules / settings の展開
+
+`rules/`（常時適用ガイドライン）と `settings.json`（permissions）はプラグインの仕組みでは自動ロードされないため、プラグインに同梱したものを `setup` スキルでプロジェクトの `.claude/` に展開します。対象プロジェクトで:
+
+```shell
+/my-claude-code:setup
 ```
 
-### 手動インストール
+> - **既存ファイルは上書きしません**（差分がある場合は確認してから）
+> - **`settings.json`** は permissions.allow のみマージされます
+> - プラグイン更新で rules が変わった時も再実行すれば追従できます
 
-```bash
-git clone https://github.com/yuya-take/yuya-claude-code.git
+### 3. プロジェクトに合わせてカスタマイズ
 
-# 必要なものをコピー
-cp yuya-claude-code/agents/*.md ~/.claude/agents/
-cp yuya-claude-code/rules/*.md ~/.claude/rules/
-cp yuya-claude-code/commands/*.md ~/.claude/commands/
-cp -r yuya-claude-code/skills/* ~/.claude/skills/
-```
+対象プロジェクトで Claude Code を起動し、`/my-claude-code:init` を実行してください。
 
-hooksは `hooks/hooks.json` から `~/.claude/settings.json` にコピー。
-MCPは `mcp-configs/mcp-servers.json` から `~/.claude.json` にコピー（APIキーは要置換）。
+プロジェクトの構造を自動解析し、以下を行います:
+
+- 環境チェック（GitLab / GitHub の判定、`glab` / `gh` CLI、`develop` ブランチの確認）
+- 設定ファイル内の例をプロジェクトの実際のパスに置換
+- `settings.json` の permissions をプロジェクトに合わせて調整
+- `rules/` の `paths:` をプロジェクトのディレクトリ構成に更新
+- `test-runner` のテストコマンドを実際の構成に更新
+
+プロジェクト構成が変わった時も再実行すれば更新できます。
 
 ---
 
-## 主な概念
+## 主要な設定
 
-### Agents
-限定スコープでタスクを処理するサブエージェント。
+### Agents (10 種)
 
-```markdown
----
-name: code-reviewer
-description: コードの品質・セキュリティ・保守性をレビュー
-tools: Read, Grep, Glob, Bash
-model: opus
----
+| Agent | 用途 |
+|-------|------|
+| `code-reviewer` | Clean Architecture 準拠・命名規則・型安全性チェック |
+| `python-reviewer` | Python コード品質レビュー |
+| `rust-reviewer` | Rust コード品質レビュー |
+| `security-reviewer` | セキュリティ脆弱性チェック |
+| `database-reviewer` | DB スキーマ・クエリレビュー |
+| `api-spec-reviewer` | API 仕様レビュー |
+| `clean-arch-guard` | Clean Architecture 違反検出 |
+| `migration-checker` | マイグレーション安全性チェック |
+| `refactor-cleaner` | リファクタリング支援 |
+| `test-runner` | テスト実行・結果分析 |
 
-あなたはシニアコードレビュアーです...
-```
+### Skills (20 種)
 
-### Skills
-コマンドやエージェントから呼び出されるワークフロー定義。
+呼び出しは `/my-claude-code:<skill名>`。
 
-```markdown
-# TDD Workflow
+| Skill | 用途 |
+|-------|------|
+| `setup` | rules / settings をプロジェクトの `.claude/` に展開 |
+| `code-review` | 未コミット変更のレビュー |
+| `code-review-full` | 包括的コードレビュー |
+| `code-review-est` | 指定フォルダの既存コード全体レビュー |
+| `review-mr` | 指定した既存 MR/PR をレビューし承認後にコメント投稿 |
+| `mr` | Merge Request / Pull Request 作成 |
+| `dev-wt` | Issue 駆動 Worktree 開発 |
+| `dev-bc` | ブランチベース開発 |
+| `explain` | コード解説 |
+| `issue-create` | Issue 作成 |
+| `issue-refine` | Issue の曖昧な内容をコード解析+対話で詳細化 |
+| `refactor-clean` | リファクタリング |
+| `python-review` | Python 専用レビュー |
+| `rust-review` | Rust 専用レビュー |
+| `security-review` | セキュリティレビュー |
+| `skill-create` | 新規スキル作成 |
+| `slack-issue` | Slack → Issue 連携 |
+| `troubleshooting` | トラブルシューティング |
+| `init` | プロジェクト初期化・設定カスタマイズ |
+| `sync` | develop ブランチの最新取得 |
 
-1. インターフェース定義
-2. 失敗するテスト作成（RED）
-3. 最小限の実装（GREEN）
-4. リファクタリング（IMPROVE）
-5. 80%以上のカバレッジ確認
-```
+### Rules (9 種)
+
+Clean Architecture, 命名規則, Git ワークフロー, Python/Rust/フロントエンド標準, DB, Orval, エージェント利用ルール
 
 ### Hooks
-ツールイベントで発火する自動化。
 
-```json
-{
-  "matcher": "tool == \"Edit\" && tool_input.file_path matches \"\\\\.(ts|tsx|js|jsx)$\"",
-  "hooks": [{
-    "type": "command",
-    "command": "#!/bin/bash\ngrep -n 'console\\.log' \"$file_path\" && echo '[Hook] Remove console.log' >&2"
-  }]
-}
-```
-
-### Rules
-常時適用ガイドライン。モジュール化して管理。
-
-```
-~/.claude/rules/
-  security.md      # シークレットハードコード禁止
-  coding-style.md  # イミュータビリティ、ファイル制限
-  testing.md       # TDD、カバレッジ要件
-```
+- `PostToolUse (Edit|Write)` → 自動フォーマット実行（プラグインに同梱、インストールするだけで有効）
 
 ---
 
-## テスト
+## 使い分けガイド
+
+**まず試すならこの 3 つ:**
+
+1. `/my-claude-code:code-review` — 日常的なコードレビュー
+2. `/my-claude-code:mr` — MR 作成の自動化
+3. `/my-claude-code:dev-wt` — Issue から Worktree を切って開発
+
+---
+
+## MCP サーバーの追加
+
+将来の MCP サーバーは `mcp/` 配下に 1 サーバー = 1 プラグインで追加し、`.claude-plugin/marketplace.json` にエントリを足します。手順は [mcp/README.md](mcp/README.md) を参照してください。
+
+---
+
+## マーケットプレイスの検証
+
+変更をコミットする前に:
 
 ```bash
-# 全テスト実行
-node tests/run-all.js
-
-# 個別テスト
-node tests/lib/utils.test.js
-node tests/lib/package-manager.test.js
-node tests/hooks/hooks.test.js
+claude plugin validate .
 ```
 
 ---
 
-## パッケージマネージャー検出
+## 貢献
 
-プラグインは自動でパッケージマネージャー（npm, pnpm, yarn, bun）を検出。優先順位：
-
-1. 環境変数: `CLAUDE_PACKAGE_MANAGER`
-2. プロジェクト設定: `.claude/package-manager.json`
-3. package.json: `packageManager`フィールド
-4. ロックファイル検出
-5. グローバル設定: `~/.claude/package-manager.json`
-6. フォールバック: 利用可能な最初のPM
-
-```bash
-# 設定
-node scripts/setup-package-manager.js --project pnpm
-
-# 検出確認
-node scripts/setup-package-manager.js --detect
-```
-
----
-
-## 注意事項
-
-### コンテキストウィンドウ管理
-
-MCPを全て有効にすると200kのコンテキストが70kまで圧迫される可能性あり。
-
-推奨：
-- 20-30個のMCPを設定
-- プロジェクトごとに10個以下を有効化
-- 80ツール以下をアクティブに
-
-`disabledMcpServers`でプロジェクト単位で無効化。
-
----
-
-## ライセンス
-
-MIT
+[CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。

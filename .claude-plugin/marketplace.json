@@ -3,39 +3,14 @@
   "owner": {
     "name": "yuya-take"
   },
-  "metadata": {
-    "description": "Claude Code用の設定集"
-  },
+  "description": "yuya-take の個人用 Claude Code プラグインマーケットプレイス",
   "plugins": [
     {
-      "name": "yuya-claude-code",
-      "source": "./",
-      "description": "agents, skills, hooks, commands, rulesをまとめたプラグイン",
-      "author": {
-        "name": "yuya-take"
-      },
-      "homepage": "https://github.com/yuya-take/yuya-claude-code",
-      "repository": "https://github.com/yuya-take/yuya-claude-code",
-      "license": "MIT",
-      "keywords": [
-        "agents",
-        "skills",
-        "hooks",
-        "commands",
-        "tdd",
-        "code-review",
-        "workflow"
-      ],
+      "name": "my-claude-code",
+      "source": "./my-claude-code",
+      "description": "GitLab / GitHub 対応の実戦用セット: レビュー系 agents (10種) と開発ワークフロー skills (20種)、自動フォーマット hook",
       "category": "workflow",
-      "tags": [
-        "agents",
-        "skills",
-        "hooks",
-        "commands",
-        "tdd",
-        "code-review",
-        "workflow"
-      ]
+      "tags": ["code-review", "gitlab", "github", "workflow"]
     }
   ]
 }
