@@ -45,7 +45,7 @@ yuya-claude-code/            # このリポジトリ
 対象プロジェクトのルートで実行:
 
 ```bash
-gh api repos/yuya-take/yuya-claude-code/contents/install.sh -H "Accept: application/vnd.github.raw" | bash
+curl -fsSL https://raw.githubusercontent.com/yuya-take/yuya-claude-code/main/install.sh | bash
 ```
 
 `.claude/` 配下に agents / skills / rules / hooks が展開され、`settings.json` に permissions と自動フォーマット hook がマージされます。

@@ -2,10 +2,9 @@
 # yuya-claude-code をカレントプロジェクトの .claude/ に展開する。
 #
 # 使い方 (プロジェクトルートで実行):
-#   gh api repos/yuya-take/yuya-claude-code/contents/install.sh -H "Accept: application/vnd.github.raw" | bash
+#   curl -fsSL https://raw.githubusercontent.com/yuya-take/yuya-claude-code/main/install.sh | bash
 #
-# 既存ファイルを上書きしたい場合:
-#   gh api repos/yuya-take/yuya-claude-code/contents/install.sh -H "Accept: application/vnd.github.raw" | bash -s -- --force
+# 既存ファイルを上書きしたい場合は末尾を | bash -s -- --force にする
 set -euo pipefail
 
 REPO="${YUYA_CLAUDE_CODE_REPO:-yuya-take/yuya-claude-code}"
@@ -20,11 +19,11 @@ for arg in "$@"; do
   esac
 done
 
-command -v gh >/dev/null 2>&1 || { echo "error: gh CLI が必要です (https://cli.github.com/)" >&2; exit 1; }
+command -v git >/dev/null 2>&1 || { echo "error: git が必要です" >&2; exit 1; }
 command -v python3 >/dev/null 2>&1 || { echo "error: python3 が必要です (settings.json のマージに使用)" >&2; exit 1; }
 
 # --- 配布元の取得 -------------------------------------------------------------
-# リポジトリのクローン内から実行された場合はローカルを使い、それ以外は gh でtarballを取得する
+# リポジトリのクローン内から実行された場合はローカルを使い、それ以外は git clone で取得する
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-.}")" 2>/dev/null && pwd || pwd)"
 if [[ -f "$script_dir/$PLUGIN_DIR/.claude-plugin/plugin.json" ]]; then
   SRC="$script_dir/$PLUGIN_DIR"
@@ -32,10 +31,9 @@ if [[ -f "$script_dir/$PLUGIN_DIR/.claude-plugin/plugin.json" ]]; then
 else
   tmpdir="$(mktemp -d)"
   trap 'rm -rf "$tmpdir"' EXIT
-  echo "==> gh api repos/$REPO/tarball を取得中..."
-  gh api "repos/$REPO/tarball" > "$tmpdir/src.tar.gz"
-  tar -xzf "$tmpdir/src.tar.gz" -C "$tmpdir" --strip-components=1
-  SRC="$tmpdir/$PLUGIN_DIR"
+  echo "==> https://github.com/$REPO を取得中..."
+  git clone --quiet --depth 1 "https://github.com/$REPO.git" "$tmpdir/repo"
+  SRC="$tmpdir/repo/$PLUGIN_DIR"
 fi
 
 [[ -d "$SRC" ]] || { echo "error: 配布元 $SRC が見つかりません" >&2; exit 1; }
