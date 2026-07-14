@@ -1,6 +1,6 @@
 # yuya-claude-code
 
-自分用の Claude Code プラグインマーケットプレイスです。
+自分用の Claude Code 設定集です。`gh` コマンドのワンライナーで各プロジェクトの `.claude/` に展開して使います。
 
 実戦投入されている agents, skills, rules, hooks をベースにしています。
 
@@ -9,18 +9,19 @@
 ## 構成
 
 ```text
-yuya-claude-code/            # マーケットプレイス (このリポジトリ)
+yuya-claude-code/            # このリポジトリ
+├── install.sh               # ワンライナー展開用スクリプト
 ├── .claude-plugin/
-│   └── marketplace.json     # マーケットプレイスカタログ
-├── my-claude-code/          # プラグイン本体
+│   └── marketplace.json     # マーケットプレイスカタログ (プラグイン方式用)
+├── my-claude-code/          # 配布物本体 (プラグインとしても機能)
 │   ├── .claude-plugin/
 │   │   └── plugin.json      # プラグインマニフェスト
 │   ├── agents/              # 専門エージェント (10種)
 │   ├── skills/              # ワークフロー (20種)
 │   ├── hooks/               # 自動フォーマット (hooks.json + format-file.sh)
-│   ├── rules/               # 常時適用ガイドライン (9種) ※ /setup で展開
+│   ├── rules/               # 常時適用ガイドライン (9種)
 │   └── templates/
-│       └── settings.json    # permissions テンプレート ※ /setup で展開
+│       └── settings.json    # permissions テンプレート
 └── mcp/                     # 将来追加する MCP サーバー用 (mcp/README.md 参照)
 ```
 
@@ -31,15 +32,33 @@ yuya-claude-code/            # マーケットプレイス (このリポジト�
 - リモート連携 CLI がインストール・認証済みであること（リモート URL から自動判定されます）
   - **GitLab**: [`glab` CLI](https://gitlab.com/gitlab-org/cli)
   - **GitHub**: [`gh` CLI](https://cli.github.com/)
-- **develop** ブランチをデフォルトブランチとして運用していること（違う場合は `/my-claude-code:init` で調整）
+- **develop** ブランチをデフォルトブランチとして運用していること（違う場合は `/init` で調整）
 
-> CLI が未導入の場合、`/my-claude-code:mr`, `/my-claude-code:issue-create`, `/my-claude-code:dev-wt`, `/my-claude-code:dev-bc`, `/my-claude-code:slack-issue` 等のリモート連携スキルが動作しません。
+> CLI が未導入の場合、`/mr`, `/issue-create`, `/dev-wt`, `/dev-bc`, `/slack-issue` 等のリモート連携スキルが動作しません。
 
 ---
 
 ## セットアップ
 
-### 1. プラグインのインストール (agents / skills / hooks)
+### 1. ワンライナーで展開 (agents / skills / rules / hooks / settings)
+
+対象プロジェクトのルートで実行:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/yuya-take/yuya-claude-code/main/install.sh | bash
+```
+
+`.claude/` 配下に agents / skills / rules / hooks が展開され、`settings.json` に permissions と自動フォーマット hook がマージされます。
+
+> - **既存ファイルは上書きしません**（内容が異なるファイルはスキップして一覧表示）
+> - 上書きしたい場合は末尾に `| bash -s -- --force` を付けて実行
+> - **`settings.json`** は permissions.allow の和集合 + hook の追記のみで、既存の設定は消しません
+> - 更新時も同じコマンドを再実行するだけで追従できます
+
+スキルの呼び出しは `/<skill名>` です (例: `/code-review`)。
+
+<details>
+<summary>別の方法: プラグインとしてインストール</summary>
 
 Claude Code 内で以下を実行:
 
@@ -49,24 +68,15 @@ Claude Code 内で以下を実行:
 ```
 
 スキルは `my-claude-code` でネームスペース化されます (例: `/my-claude-code:code-review`)。
+rules と settings はプラグインの仕組みでは自動ロードされないため、続けて `/my-claude-code:setup` で展開してください。
 
-更新は `/plugin marketplace update yuya-claude-code` → `/plugin update my-claude-code@yuya-claude-code`、または自動更新に任せます。
+更新は `/plugin marketplace update yuya-claude-code` → `/plugin update my-claude-code@yuya-claude-code`。
 
-### 2. rules / settings の展開
+</details>
 
-`rules/`（常時適用ガイドライン）と `settings.json`（permissions）はプラグインの仕組みでは自動ロードされないため、プラグインに同梱したものを `setup` スキルでプロジェクトの `.claude/` に展開します。対象プロジェクトで:
+### 2. プロジェクトに合わせてカスタマイズ
 
-```shell
-/my-claude-code:setup
-```
-
-> - **既存ファイルは上書きしません**（差分がある場合は確認してから）
-> - **`settings.json`** は permissions.allow のみマージされます
-> - プラグイン更新で rules が変わった時も再実行すれば追従できます
-
-### 3. プロジェクトに合わせてカスタマイズ
-
-対象プロジェクトで Claude Code を起動し、`/my-claude-code:init` を実行してください。
+対象プロジェクトで Claude Code を起動し、`/init` を実行してください。
 
 プロジェクトの構造を自動解析し、以下を行います:
 
@@ -99,11 +109,11 @@ Claude Code 内で以下を実行:
 
 ### Skills (20 種)
 
-呼び出しは `/my-claude-code:<skill名>`。
+呼び出しは `/<skill名>`（プラグインとしてインストールした場合は `/my-claude-code:<skill名>`）。
 
 | Skill | 用途 |
 |-------|------|
-| `setup` | rules / settings をプロジェクトの `.claude/` に展開 |
+| `setup` | rules / settings を `.claude/` に展開（プラグイン方式専用。ワンライナー展開では不要のため除外） |
 | `code-review` | 未コミット変更のレビュー |
 | `code-review-full` | 包括的コードレビュー |
 | `code-review-est` | 指定フォルダの既存コード全体レビュー |
@@ -130,7 +140,7 @@ Clean Architecture, 命名規則, Git ワークフロー, Python/Rust/フロン�
 
 ### Hooks
 
-- `PostToolUse (Edit|Write)` → 自動フォーマット実行（プラグインに同梱、インストールするだけで有効）
+- `PostToolUse (Edit|Write)` → 自動フォーマット実行（ワンライナー展開時は `.claude/settings.json` に登録され、`.claude/hooks/format-file.sh` が実行されます）
 
 ---
 
@@ -138,9 +148,9 @@ Clean Architecture, 命名規則, Git ワークフロー, Python/Rust/フロン�
 
 **まず試すならこの 3 つ:**
 
-1. `/my-claude-code:code-review` — 日常的なコードレビュー
-2. `/my-claude-code:mr` — MR 作成の自動化
-3. `/my-claude-code:dev-wt` — Issue から Worktree を切って開発
+1. `/code-review` — 日常的なコードレビュー
+2. `/mr` — MR 作成の自動化
+3. `/dev-wt` — Issue から Worktree を切って開発
 
 ---
 
