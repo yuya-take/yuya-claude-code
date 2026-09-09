@@ -132,7 +132,7 @@ mindmap
       言語別標準
     Skills
       コードレビュー
-      MR作成
+      PR作成
       Issue駆動開発
       トラブルシューティング
     Agents
@@ -267,7 +267,7 @@ flowchart TD
 |----------|------|
 | `/code-review` | 未コミット変更のレビュー |
 | `/code-review-full` | コードベース全体のレビュー |
-| `/mr` | マージリクエスト作成 |
+| `/pr` | Pull Request 作成 |
 | `/dev-wt` | Worktreeでのissue駆動開発 |
 | `/dev-bc` | ブランチでのissue駆動開発 |
 
@@ -282,7 +282,7 @@ flowchart TD
 | コマンド | 概要 |
 |----------|------|
 | `/explain` | コードの解説 |
-| `/issue-create` | GitLab Issue作成 |
+| `/issue-create` | GitHub Issue作成 |
 | `/issue-refine` | 曖昧なIssueの詳細化 |
 | `/refactor-clean` | リファクタリング支援 |
 | `/troubleshooting` | 問題診断 |
@@ -302,17 +302,17 @@ flowchart TD
 ```bash
 > /code-review                      # 未コミット変更をレビュー
 > /dev-wt #123                      # Issue #123 の開発を Worktree で開始
-> /mr                               # マージリクエストを作成
+> /pr                               # Pull Request を作成
 > /code-review-est backend/app/     # 特定フォルダの既存コードをレビュー
 ```
 
 <div v-click class="mt-6">
 
-### スキルの組み合わせ例: Issue → 実装 → MR
+### スキルの組み合わせ例: Issue → 実装 → PR
 
 ```mermaid {scale: 0.75}
 flowchart LR
-    A["/dev-wt #123"] -->|設計・実装・セルフレビュー| B["/mr"]
+    A["/dev-wt #123"] -->|設計・実装・セルフレビュー| B["/pr"]
     A -.->|任意| C["/code-review"] -.-> B
     style A fill:#60a5fa,color:#000
     style B fill:#facc15,color:#000
@@ -413,7 +413,7 @@ class: text-center
 </div>
 
 <div v-click class="mt-3 p-3 rounded bg-orange-500 bg-opacity-10 border-l-4 border-orange-400 text-sm">
-⚠️ 前提条件: <code>glab</code>（GitLab）または <code>gh</code>（GitHub）CLI がインストール・認証済みであること（リモートURLから自動判定）
+⚠️ 前提条件: リポジトリが GitHub でホストされており、<code>gh</code> CLI がインストール・認証済みであること
 </div>
 
 ---
@@ -449,7 +449,7 @@ flowchart LR
 **&nbsp;**
 - DBマイグレーションのパス
 - ログライブラリ
-- GitLab リモート情報
+- GitHub リモート情報
 
 </div>
 
@@ -476,8 +476,8 @@ git commit -m "chore: Claude Code 設定を導入"
 # Issue駆動開発を開始
 > /dev-wt #42
 
-# マージリクエスト作成
-> /mr
+# Pull Request 作成
+> /pr
 ```
 
 </div>
@@ -505,16 +505,16 @@ class: text-center
 sequenceDiagram
     actor Dev as 開発者
     participant CC as Claude Code
-    participant GL as GitLab
+    participant GH as GitHub
 
     Dev->>CC: /dev-wt #123
-    CC->>GL: Issue情報を取得
+    CC->>GH: Issue情報を取得
     CC->>CC: Worktree作成 + 設計プラン提示
     Dev->>CC: プラン承認
     CC->>CC: 実装 + 自動セルフレビュー
-    Dev->>CC: /mr
-    CC->>GL: MR を作成
-    Note over Dev,GL: レビュー & マージ
+    Dev->>CC: /pr
+    CC->>GH: PR を作成
+    Note over Dev,GH: レビュー & マージ
 ```
 
 ---
@@ -537,7 +537,7 @@ sequenceDiagram
 
 <div class="text-sm space-y-1">
 
-1. `glab issue view` でIssue情報を取得
+1. `gh issue view` でIssue情報を取得
 2. Issue内容からブランチ名を自動生成
 3. **Worktree** を作成（メイン作業を邪魔しない）
 4. **プランモード** で設計を提示
@@ -639,12 +639,12 @@ project-wt-456/    ← Issue #456 用
 
 ---
 
-# ワークフロー 3: MR作成 (/mr)
+# ワークフロー 3: PR作成 (/pr)
 
 <div class="mt-4"></div>
 
 ```bash
-> /mr
+> /pr
 ```
 
 <div class="mt-6">
@@ -653,7 +653,7 @@ project-wt-456/    ← Issue #456 用
 flowchart LR
     A[差分確認] --> B[コミット]
     B --> C[プッシュ]
-    C --> D[MR作成]
+    C --> D[PR作成]
     D --> E[レビュー依頼]
     
     style A fill:#60a5fa,color:#000
@@ -673,8 +673,8 @@ flowchart LR
 
 - **ブランチ名** — Issue番号 + 要約
 - **コミットメッセージ** — 変更内容を要約
-- **MRタイトル** — 簡潔で的確な要約
-- **MR説明文** — 変更概要・テスト計画
+- **PRタイトル** — 簡潔で的確な要約
+- **PR説明文** — 変更概要・テスト計画
 
 </div>
 
@@ -684,7 +684,7 @@ flowchart LR
 
 - ブランチ: `feature/#123-add-login`
 - コミット: `feat: ログイン機能を追加 (#123)`
-- MR: develop ブランチへ向けて作成
+- PR: develop ブランチへ向けて作成
 - レビュアー自動アサイン
 
 </div>
@@ -789,7 +789,7 @@ flowchart LR
     A["issue-create"] --> B["issue-refine\n要件詳細化(任意)"]
     B --> C["dev-wt / dev-bc\n設計→実装→セルフレビュー"]
     C --> D["code-review\n追加レビュー(任意)"]
-    D --> E["mr\nMR作成→マージ"]
+    D --> E["pr\nPR作成→マージ"]
 
     style S fill:#e879f9,color:#000
     style A fill:#60a5fa,color:#000
@@ -827,8 +827,8 @@ class: text-center
 </div>
 
 <div v-click class="p-4 rounded bg-white bg-opacity-5">
-  <div class="font-bold text-blue-400">Q: GitLab 以外（GitHub）でも使える？</div>
-  <div class="mt-2 text-sm">A: はい。リモートURLから自動判定し、GitHub では <code>gh</code> CLI を使います（MR は PR に読み替え）。どちらの CLI も無い環境ではリモート連携系スキル（<code>/mr</code>, <code>/issue-create</code> 等）は使えませんが、<code>/code-review</code>, <code>/explain</code> などのローカルスキルは問題なく動作します。</div>
+  <div class="font-bold text-blue-400">Q: GitHub 以外（GitLab 等）でも使える？</div>
+  <div class="mt-2 text-sm">A: リモート連携系スキル（<code>/pr</code>, <code>/review-pr</code>, <code>/issue-create</code> 等）は <code>gh</code> CLI 前提のため GitHub 専用です。<code>/code-review</code>, <code>/explain</code> などのローカルスキルはホスティング先に関係なく動作します。</div>
 </div>
 
 </div>
@@ -851,7 +851,7 @@ class: text-center
 <div v-click class="p-6 rounded-lg bg-green-500 bg-opacity-10 border border-green-500 border-opacity-30">
   <div class="text-4xl mb-4">🎯</div>
   <div class="font-bold">Skills で定型作業を自動化</div>
-  <div class="text-sm opacity-70 mt-2">スラッシュコマンド一発で<br/>Issue → 実装 → MR</div>
+  <div class="text-sm opacity-70 mt-2">スラッシュコマンド一発で<br/>Issue → 実装 → PR</div>
 </div>
 
 <div v-click class="p-6 rounded-lg bg-purple-500 bg-opacity-10 border border-purple-500 border-opacity-30">

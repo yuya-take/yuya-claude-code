@@ -1,6 +1,6 @@
 ---
 name: issue-refine
-description: 曖昧なIssue（GitLab/GitHub）の内容をコードベース解析と対話モードで詳細化する。Issue URLまたは番号を渡して使用。
+description: 曖昧なGitHub Issueの内容をコードベース解析と対話モードで詳細化する。Issue URLまたは番号を渡して使用。
 argument-hint: "[Issue URL or #number]"
 ---
 
@@ -10,8 +10,7 @@ argument-hint: "[Issue URL or #number]"
 
 ## Step 1: Issue の取得
 
-- `glab issue view <number>`（GitHub リポジトリの場合: `gh issue view <number> --comments`）で Issue 情報（タイトル、本文、ラベル、コメント）を取得する。URL の場合はそのまま渡す
-- CLI は `git remote get-url origin` で判定する（`github.com` を含むなら `gh`、それ以外なら `glab`）
+- `gh issue view <number> --comments` で Issue 情報（タイトル、本文、ラベル、コメント）を取得する。URL の場合はそのまま渡す
 
 ## Step 2: コードベースの調査
 
@@ -110,7 +109,7 @@ Issue の内容とコードの実態を照らし合わせ、以下の観点で�
 ## Step 6: ユーザー承認と Issue 更新
 
 1. 更新案をユーザーに提示して確認を求める
-2. 承認を得たら `glab issue update <number> --description "..."`（GitHub: `gh issue edit <number> --body "..."`）で Issue を更新する
+2. 承認を得たら `gh issue edit <number> --body "..."` で Issue を更新する
 3. 必要に応じてラベルの追加も提案する
 
 ## 原則

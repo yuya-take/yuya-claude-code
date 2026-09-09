@@ -15,15 +15,13 @@ description: プロジェクトの .claude/ 設定を解析・カスタマイズ
 
 以下を確認し、問題があればユーザーに警告する:
 
-1. **ホスティング判定**: `git remote get-url origin` で GitLab / GitHub を判定する:
-   - `github.com` を含む → **GitHub**（`gh` を使用、MR は PR と読み替え）
-   - それ以外（GitLab セルフホスト含む） → **GitLab**（`glab` を使用）
-   - リモートが無い場合は「リモートリポジトリが設定されていません。リモート連携スキル（mr, issue-create 等）は動作しません」と警告
+1. **リモート確認**: `git remote get-url origin` で GitHub リポジトリか確認する:
+   - `github.com` を含まない場合は「このテンプレートは GitHub（`gh` CLI）前提です。リモート連携スキル（pr, review-pr, issue-create 等）は動作しません」と警告
+   - リモートが無い場合は「リモートリポジトリが設定されていません。リモート連携スキル（pr, issue-create 等）は動作しません」と警告
 
-2. **CLI**: 判定したプラットフォームの CLI を `which glab` / `which gh` で存在確認。未インストールの場合:
-   - GitLab: 「`glab` がインストールされていません: https://gitlab.com/gitlab-org/cli」と警告
-   - GitHub: 「`gh` がインストールされていません: https://cli.github.com/」と警告
-   - skills/mr, skills/issue-create, skills/dev-wt, skills/dev-bc 等が動作しません
+2. **CLI**: `which gh` で `gh` CLI の存在を確認し、`gh auth status` で認証済みか確認する。未インストール / 未認証の場合:
+   - 「`gh` がインストールされていません: https://cli.github.com/」または「`gh auth login` で認証してください」と警告
+   - skills/pr, skills/review-pr, skills/issue-create, skills/dev-wt, skills/dev-bc 等が動作しません
 
 3. **develop ブランチ**: `git branch -a` で develop が存在するか確認。存在しない場合:
    - 「`develop` ブランチが見つかりません。このテンプレートは develop ブランチを前提としています」と警告

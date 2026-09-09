@@ -34,7 +34,7 @@ disable-model-invocation: true
 | `Refactor` | リファクタリング・技術的負債の解消 |
 | `Documentation` | ドキュメントの作成・更新 |
 
-テンプレートの格納場所: GitLab は `.gitlab/issue_templates/`、GitHub は `.github/ISSUE_TEMPLATE/` に定義されている（無い場合はテンプレートなしで進める）
+テンプレートの格納場所: `.github/ISSUE_TEMPLATE/` に定義されている（無い場合はテンプレートなしで進める）
 
 選んだテンプレートの構成に沿ってIssue本文を作成する。
 
@@ -79,18 +79,9 @@ disable-model-invocation: true
 
 ### Step 6: Issue作成
 
-ユーザーの承認を得たら、Issueを作成する。CLI は `git remote get-url origin` で判定する（`github.com` を含むなら `gh`、それ以外なら `glab`）:
+ユーザーの承認を得たら、Issueを作成する:
 
 ```bash
-# GitLab
-glab issue create \
-  --title "タイトル" \
-  --description "$(cat <<'EOF'
-Issue本文
-EOF
-)"
-
-# GitHub
 gh issue create \
   --title "タイトル" \
   --body "$(cat <<'EOF'

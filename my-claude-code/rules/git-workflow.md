@@ -1,16 +1,13 @@
 # Git Workflow
 
-## CLI の使い分け（GitLab / GitHub）
+## リモート連携 CLI
 
-リモート連携 CLI は `git remote get-url origin` の URL で判定する:
-
-- `github.com` を含む → **GitHub**: `gh` を使う（MR は Pull Request と読み替える）
-- それ以外（GitLab セルフホスト含む） → **GitLab**: `glab` を使う
+GitHub 前提。リモート操作（PR / Issue / ラベル）は `gh` CLI を使う。
 
 ## ブランチ運用
 
 - **developブランチから作成する**
-- MRのターゲットブランチはdevelop
+- PRのターゲットブランチはdevelop
 - リリース用ブランチ（main等）が分離されている場合は、直接ブランチを切ったりpushしない
 
 ### ブランチ命名
@@ -64,17 +61,17 @@ docs: READMEにClaude Code開発ガイドを追加
 - 設定変更とコード変更は別コミット
 - 関連するファイルはまとめて1コミット
 
-## Merge Request / Pull Request
+## Pull Request
 
-MR/PR ワークフローは `/mr` スキルで実行する。手順:
+PR ワークフローは `/pr` スキルで実行する。手順:
 
 1. ブランチ確認・作成（developから）
 2. 差分確認（`git status` + `git diff`）
 3. コミット分割
 4. `git push -u origin ブランチ名`
-5. `glab mr create` / `glab mr update`（GitHub: `gh pr create` / `gh pr edit`）
+5. `gh pr create` / `gh pr edit`
 
-### MR/PR Description
+### PR Description
 
 ```markdown
 ## 概要

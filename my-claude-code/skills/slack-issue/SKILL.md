@@ -44,7 +44,7 @@ Slackの投稿内容から対象のサービス・機能を特定し、**コー�
 - **タイトル**: `【{スコープ}】{内容の要約}` 形式（50文字以内目安）
   - スコープはプロダクト名・画面名等から判断（例: `backend`, `frontend`, `infra`）
 - **ラベル**: 投稿内容から適切なラベルを選定
-  - `glab label list`（GitHub: `gh label list`）で確認
+  - `gh label list` で確認
   - 種類ラベル: `feature`, `enhancement`, `bug` 等
   - サービスラベル: `frontend`, `backend` 等
 - **本文**: 以下の構成で作成
@@ -93,19 +93,9 @@ Slackの投稿内容から対象のサービス・機能を特定し、**コー�
 
 ### Step 5: Issue作成
 
-承認後、Issueを作成する。CLI は `git remote get-url origin` で判定する（`github.com` を含むなら `gh`、それ以外なら `glab`）:
+承認後、Issueを作成する:
 
 ```bash
-# GitLab
-glab issue create \
-  --title "タイトル" \
-  --label "label1,label2" \
-  --description "$(cat <<'EOF'
-Issue本文
-EOF
-)"
-
-# GitHub
 gh issue create \
   --title "タイトル" \
   --label "label1,label2" \
@@ -132,4 +122,4 @@ EOF
 - ユーザーの承認なしにIssueを作成しない
 - Slackの投稿内容を忠実に反映する（勝手に要件を追加しない）
 - スクリーンショット等の添付ファイルがある場合はその旨を本文に記載する
-- ラベルは `glab label list`（GitHub: `gh label list`）で存在を確認してから使う
+- ラベルは `gh label list` で存在を確認してから使う

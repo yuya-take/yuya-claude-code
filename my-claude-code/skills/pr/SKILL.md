@@ -1,12 +1,10 @@
 ---
-name: mr
-description: Merge Request / Pull Request を作成する。ブランチ確認・作成、差分確認、コミット分割、プッシュ、MR/PR作成/更新まで一連のワークフロー。
+name: pr
+description: Pull Request を作成する。ブランチ確認・作成、差分確認、コミット分割、プッシュ、PR作成/更新まで一連のワークフロー。
 disable-model-invocation: true
 ---
 
-以下の手順でブランチ作成からMR/PR対応まで行ってください。
-
-> **CLI の使い分け**: `git remote get-url origin` が `github.com` を含むなら `gh`（PR）、それ以外なら `glab`（MR）を使う。
+以下の手順でブランチ作成からPR対応まで行ってください。
 
 ## 1. ブランチ確認・作成
 - `git branch --show-current` で現在のブランチを確認
@@ -26,11 +24,11 @@ disable-model-invocation: true
 ## 4. プッシュ
 - `git push -u origin ブランチ名` でリモートにプッシュ
 
-## 5. MR/PR確認・作成
-- `glab mr list`（GitHub: `gh pr list`）で現在のブランチに対応するMR/PRがあるか確認
-- **ない場合**: `glab mr create`（GitHub: `gh pr create`）で作成
-- **ある場合**: `glab mr view`（GitHub: `gh pr view`）で内容を確認し、descriptionに修正が必要であれば `glab mr update`（GitHub: `gh pr edit`）で更新
+## 5. PR確認・作成
+- `gh pr list --head ブランチ名` で現在のブランチに対応するPRがあるか確認
+- **ない場合**: `gh pr create --base develop` で作成
+- **ある場合**: `gh pr view` で内容を確認し、descriptionに修正が必要であれば `gh pr edit` で更新
 
 ## 注意事項
 - コミットは論理的な単位で分割すること
-- MR/PRのdescriptionには変更内容の概要を記載すること
+- PRのdescriptionには変更内容の概要を記載すること

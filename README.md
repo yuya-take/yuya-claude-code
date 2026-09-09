@@ -29,12 +29,11 @@ yuya-claude-code/            # このリポジトリ
 
 ## 前提条件
 
-- リモート連携 CLI がインストール・認証済みであること（リモート URL から自動判定されます）
-  - **GitLab**: [`glab` CLI](https://gitlab.com/gitlab-org/cli)
-  - **GitHub**: [`gh` CLI](https://cli.github.com/)
+- リポジトリが **GitHub** でホストされていること
+- [`gh` CLI](https://cli.github.com/) がインストール・認証済み（`gh auth login`）であること
 - **develop** ブランチをデフォルトブランチとして運用していること（違う場合は `/init` で調整）
 
-> CLI が未導入の場合、`/mr`, `/issue-create`, `/dev-wt`, `/dev-bc`, `/slack-issue` 等のリモート連携スキルが動作しません。
+> `gh` が未導入の場合、`/pr`, `/review-pr`, `/issue-create`, `/dev-wt`, `/dev-bc`, `/slack-issue` 等のリモート連携スキルが動作しません。
 
 ---
 
@@ -80,7 +79,7 @@ rules と settings はプラグインの仕組みでは自動ロードされな�
 
 プロジェクトの構造を自動解析し、以下を行います:
 
-- 環境チェック（GitLab / GitHub の判定、`glab` / `gh` CLI、`develop` ブランチの確認）
+- 環境チェック（GitHub リモート、`gh` CLI の導入・認証、`develop` ブランチの確認）
 - 設定ファイル内の例をプロジェクトの実際のパスに置換
 - `settings.json` の permissions をプロジェクトに合わせて調整
 - `rules/` の `paths:` をプロジェクトのディレクトリ構成に更新
@@ -117,8 +116,8 @@ rules と settings はプラグインの仕組みでは自動ロードされな�
 | `code-review` | 未コミット変更のレビュー |
 | `code-review-full` | 包括的コードレビュー |
 | `code-review-est` | 指定フォルダの既存コード全体レビュー |
-| `review-mr` | 指定した既存 MR/PR をレビューし承認後にコメント投稿 |
-| `mr` | Merge Request / Pull Request 作成 |
+| `review-pr` | 指定した既存 PR をレビューし承認後にコメント投稿 |
+| `pr` | Pull Request 作成 |
 | `dev-wt` | Issue 駆動 Worktree 開発 |
 | `dev-bc` | ブランチベース開発 |
 | `explain` | コード解説 |
@@ -149,7 +148,7 @@ Clean Architecture, 命名規則, Git ワークフロー, Python/Rust/フロン�
 **まず試すならこの 3 つ:**
 
 1. `/code-review` — 日常的なコードレビュー
-2. `/mr` — MR 作成の自動化
+2. `/pr` — PR 作成の自動化
 3. `/dev-wt` — Issue から Worktree を切って開発
 
 ---

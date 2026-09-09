@@ -12,8 +12,7 @@ Issueの内容を確認し、Worktreeで隔離された環境で設計・実装�
 
 引数: `$ARGUMENTS`
 
-- `glab issue view <number>`（GitHub リポジトリの場合: `gh issue view <number> --comments`）でIssue情報（タイトル、本文、ラベル、コメント）を取得する。URLの場合はそのまま渡す
-- CLI は `git remote get-url origin` で判定する（`github.com` を含むなら `gh`、それ以外なら `glab`）
+- `gh issue view <number> --comments` でIssue情報（タイトル、本文、ラベル、コメント）を取得する。URLの場合はそのまま渡す
 - Issue内容を把握し、実装スコープを明確にする
 
 ## 2. ブランチ名の決定
@@ -87,4 +86,4 @@ EnterPlanModeツールを使ってPlanモードに入る。
 
 ### 7. 完了報告
 
-変更ファイル一覧、実装サマリー、セルフレビュー結果、次のステップの提案（コミット、MR作成など）を報告する。
+変更ファイル一覧、実装サマリー、セルフレビュー結果、次のステップの提案（コミット、PR作成など）を報告する。
