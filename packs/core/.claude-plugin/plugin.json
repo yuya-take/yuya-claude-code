@@ -1,6 +1,6 @@
 {
   "name": "core",
-  "description": "共通の土台: /setup（展開とプロジェクトに合わせた調整）、/explain、Git ワークフローの rule、基本の permissions",
+  "description": "共通の土台: /setup（展開とプロジェクトに合わせた調整）、/explain、/skill-create（git 履歴からスキル生成）、Git ワークフローの rule、基本の permissions",
   "author": {
     "name": "yuya-take"
   },

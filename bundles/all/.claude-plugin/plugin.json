@@ -12,7 +12,6 @@
     "dev-flow",
     "python",
     "frontend",
-    "rust",
-    "extras"
+    "rust"
   ]
 }

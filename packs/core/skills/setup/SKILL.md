@@ -69,7 +69,7 @@ disable-model-invocation: true
 - **rules 本文の例示**: サンプルパスやコマンドを実際のものに置き換える。ベースブランチが develop でない場合は `git-workflow.md` を書き換える
 - **`/rv` の振り分け表**: `skills/rv/SKILL.md` のステップ 2 の表のパス例を、実際のレイヤー・API・DB のパスに合わせる（install.sh で展開した場合のみ。プラグインのスキルは編集しない）
 - **agents**（install.sh で導入した場合のみ）: `test-runner.md` のテストコマンド表、各 reviewer の対象パスを実態に合わせる
-- **troubleshooting スキル**（extras pack を install.sh で導入した場合のみ）: `skills/troubleshooting/SKILL.md` の Makefile ターゲット・環境変数・ポート番号の例を実際のものに置き換える。対応するものがなければ削除を提案する
+- **troubleshooting スキル**（python pack を install.sh で導入した場合のみ）: `skills/troubleshooting/SKILL.md` の Makefile ターゲット・環境変数・ポート番号の例を実際のものに置き換える。対応するものがなければ削除を提案する
 - **settings.json**: `permissions.allow` を、プロジェクトで実際に使う lint / test / build コマンドに合わせる。使わないツールのエントリは削除を提案する
 
 ## 6. 完了報告

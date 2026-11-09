@@ -69,7 +69,7 @@ prune = args.prune or args.force
 KINDS = ["skills", "agents", "rules", "hooks", "settings"]
 BASE_PACKS = ["core", "review", "dev-flow"]
 # 統合・廃止した pack (旧名 -> 統合先)。導入記録や --packs に旧名があっても動くようにする
-RENAMED_PACKS = {"issue": "dev-flow"}
+RENAMED_PACKS = {"issue": "dev-flow", "extras": "core"}
 # 言語 pack の自動検出に使うファイル
 DETECT = {
     "python": ["pyproject.toml", "requirements.txt", "setup.py"],
