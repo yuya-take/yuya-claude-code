@@ -1,47 +1,70 @@
 ---
 name: setup
-description: プラグインに同梱された rules と settings テンプレートをプロジェクトの .claude/ に展開する。プラグイン導入直後やプラグイン更新後に実行。
+description: このセットの rules / settings を .claude/ に展開し、プロジェクトの構成（言語・パス・テストコマンド・ブランチ運用）に合わせてカスタマイズする。導入直後、プラグイン更新後、プロジェクト構成が変わったときに実行。
 disable-model-invocation: true
 ---
 
-# rules / settings のセットアップ
+# /setup
 
-rules（常時適用ガイドライン）と settings.json（permissions）はプラグインの仕組みでは自動配布されないため、
-このスキルでプラグイン本体からプロジェクトの `.claude/` にコピーする。
+導入方法（install.sh かプラグインか）に関係なく、このスキル 1 つで「展開 → 環境チェック → プロジェクトに合わせた調整」まで行う。再実行しても安全なように、既存の内容は確認なしに上書きしない。
 
-## 配布元の特定
+## 1. rules / settings の展開（プラグイン導入時のみ）
 
-この SKILL.md はプラグインルートの `skills/setup/` に置かれている。
-配布元はこの SKILL.md から見て 2 階層上のプラグインルート:
+`.claude/rules/` に本セットの rules（`clean-architecture.md`, `git-workflow.md` など）が既にある場合は、install.sh で展開済みなのでこのステップを飛ばす。
 
-- rules: `<プラグインルート>/rules/*.md`
-- settings テンプレート: `<プラグインルート>/templates/settings.json`
+プラグインとして導入した場合、rules と settings は自動では配布されないので、プラグイン本体からコピーする。配布元はプラグインルート `${CLAUDE_SKILL_DIR}/../..`:
 
-## 手順
+- `rules/*.md` → `.claude/rules/`。同名ファイルが既にあり内容が違う場合は、差分の概要を示して上書きするか確認する
+- `templates/settings.json` → `.claude/settings.json`。ファイルが無ければコピーする。あれば `permissions.allow` / `permissions.ask` の和集合を取り、`attribution` などのトップレベルキーは未設定の場合だけ追加する（既存の値は変えない）
 
-### Step 1: rules のコピー
+## 2. 環境チェック
 
-`<プラグインルート>/rules/` 内の全 `.md` ファイルを、プロジェクトの `.claude/rules/` にコピーする。
+結果は問題の有無にかかわらずまとめて報告する。
 
-- `.claude/rules/` が無ければ作成する
-- **既存の同名ファイルは上書きしない**（プロジェクト側でカスタマイズ済みの可能性があるため）
-- 内容が異なる既存ファイルがあった場合は、ファイル名と差分の概要を報告し、上書きするかユーザーに確認する
+- **リモート**: `git remote get-url origin` が GitHub でなければ、`/pr`・`/rv`（PR モード）・`/issue-create` などのリモート連携は動かないと伝える
+- **gh CLI**: `gh auth status`。未インストールなら https://cli.github.com/ 、未認証なら `gh auth login` を案内する
+- **ベースブランチ**: `develop` が存在するか確認する。無い場合は、デフォルトブランチ（`git symbolic-ref refs/remotes/origin/HEAD`）を使う運用かどうかをユーザーに確認し、ステップ 5 で `rules/git-workflow.md` を書き換える
+- **Worktree**: `/dev` は `.claude/worktrees/` に Worktree を作る
+  - `.gitignore` に `.claude/worktrees/` が無ければ追加を提案する
+  - テストや起動に必要な gitignore 済みファイル（`.env` など）があれば、リポジトリルートに `.worktreeinclude`（`.gitignore` と同じ書式）を作って列挙するよう提案する
+  - `.claude/` の agents / skills / rules が git にコミットされていないと、Worktree 側には存在しない。コミットされていなければ、コミットを提案する（`settings.local.json` は除く）
 
-### Step 2: settings.json のマージ
+## 3. プロジェクト構造の解析
 
-`<プラグインルート>/templates/settings.json` の `permissions.allow` を、プロジェクトの `.claude/settings.json` にマージする。
+- 言語・ツール: `pyproject.toml`（ruff / ty / mypy / pytest / uv）、`package.json`（biome / eslint / tsc / テストランナー）、`Cargo.toml`、`orval.config.*`、`Makefile` のターゲット
+- サービス構成: モノレポなら各サービスのディレクトリと、backend / frontend の分け方
+- Clean Architecture のレイヤーディレクトリ（`domain/`, `application/` or `usecase/`, `adapter/`, `presentation/`）の実際のパス
+- API ルート、DB モデル、マイグレーション（`alembic/`, `migrations/`）、リポジトリ層の場所
+- テスト・lint・format・型チェックのコマンド（サービスごと）
+- ログライブラリ（`structlog`, `logging`, `tracing` など）
 
-- `.claude/settings.json` が無ければテンプレートをそのままコピー
-- 既存ファイルがある場合は `permissions.allow` の和集合を取る（既存エントリは削除しない）
-- permissions 以外の既存キー（hooks 等）には触らない
+## 4. 確認
 
-### Step 3: 完了報告
+解析結果を次の形で示し、反映してよいか確認する。
 
-- コピー / スキップ / マージしたファイルの一覧を報告する
-- 新規セットアップの場合は、続けて `/my-claude-code:init` の実行を案内する
-  （プロジェクト構造に合わせて rules の `paths:` や permissions をカスタマイズするため）
+```
+## プロジェクト解析結果
+- 言語: Python / TypeScript / Rust
+- ベースブランチ: develop
+- サービス: backend → backend/ , frontend → frontend/
+- レイヤー: backend/app/{domain,usecase,adapter,presentation}
+- API ルート: backend/app/presentation/route/
+- DB: モデル backend/app/adapter/model/ , マイグレーション backend/alembic/
+- コマンド: lint `make lint` / test `make test` / frontend `npm run biome`, `npm test`
+- Orval: あり（frontend/src/api/generated/）
+```
 
-## プラグイン更新後の再実行
+## 5. 反映
 
-プラグイン更新で rules が変わった場合もこのスキルを再実行する。
-既存ファイルとの差分を提示し、ユーザーの承認を得てから上書きすること。
+承認後、`.claude/` 配下を Read → Edit で更新する（一括 `sed` は使わない。ファイルごとに文脈が違うため）。ユーザーが手で編集した箇所は残し、変える前に差分を確認する。
+
+- **rules の `paths:`**: `clean-architecture.md`、`database.md`、`frontend-standards.md`、`naming-conventions.md`、`orval.md`、`python-standards.md`、`rust-standards.md` の frontmatter を実際のディレクトリに合わせる。使わない言語の rules は削除を提案する。`paths:` の無い rules（`agents.md`, `git-workflow.md`）は常時適用なので触らない
+- **rules 本文の例示**: サンプルパスやコマンドを実際のものに置き換える。ベースブランチが develop でない場合は `git-workflow.md` を書き換える
+- **`/rv` の振り分け表**: `skills/rv/SKILL.md` のステップ 2 の表のパス例を、実際のレイヤー・API・DB のパスに合わせる（install.sh で展開した場合のみ。プラグインのスキルは編集しない）
+- **agents**: `test-runner.md` のテストコマンド表、各 reviewer の対象パスを実態に合わせる
+- **troubleshooting スキル**: `skills/troubleshooting/SKILL.md` の Makefile ターゲット・環境変数・ポート番号の例を実際のものに置き換える。対応するものがなければ削除を提案する
+- **settings.json**: `permissions.allow` を、プロジェクトで実際に使う lint / test / build コマンドに合わせる。使わないツールのエントリは削除を提案する
+
+## 6. 完了報告
+
+更新したファイルと変更点の要約を報告し、まず試すものとして `/dev`、`/rv`、`/pr` を案内する。

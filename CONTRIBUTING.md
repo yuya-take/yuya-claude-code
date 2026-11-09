@@ -9,7 +9,7 @@
 ### 1. ブランチを作成
 
 ```bash
-git checkout -b feature/your-feature-name
+git switch -c feat/your-feature-name
 ```
 
 ### 2. ファイルを追加・編集
@@ -44,8 +44,8 @@ rules を変更した場合は、実際のプロジェクトの `.claude/` に�
 
 ```bash
 git add .
-git commit -m "Add: 機能の説明"
-git push origin feature/your-feature-name
+git commit -m "feat: 機能の説明"
+git push -u origin feat/your-feature-name
 ```
 
 ---
@@ -103,3 +103,6 @@ description: 説明
 - 既存のパターンに従う
 - API キーなどの機密情報を含めない
 - 実プロジェクトで動作確認済みのものを優先
+- スキル名は Claude Code の組み込みコマンド（`/init`, `/review`, `/code-review`, `/security-review` など）と被らせない
+- レビュー系 agent を追加する場合は、`rules/agents.md` の統一出力フォーマットに従い、`/rv` の振り分け表（`skills/rv/SKILL.md`）にも追加する
+- スキルや agent を廃止・改名した場合は、`install.sh` の `DEPRECATED_SKILLS` / `DEPRECATED_AGENTS` に旧名を追加する（`--prune` で利用側から片付けられるように）
