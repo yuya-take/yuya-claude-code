@@ -1,66 +1,37 @@
-# Agent Orchestration
+# Agents
 
-## Available Agents
+レビュー系の agent は `/rv` が変更内容に応じて振り分けて起動する。通常の会話や実装中に、指示なしでこれらの agent を自分から起動しない（サブエージェントの起動はコストと待ち時間がかかり、/rv の振り分けと重複するため）。ユーザーが特定の agent を名指しした場合は、その agent を使う。
 
-| Agent | 用途 | トリガー |
-|-------|------|---------|
-| **code-reviewer** | コード変更全般のレビュー（Python/Rust/Frontend） | コード変更完了後 |
-| **python-reviewer** | Python品質・型安全性・Pythonicパターン | Pythonファイル変更後 |
-| **rust-reviewer** | 所有権・安全性・非同期パターン | Rustファイル変更後 |
-| **security-reviewer** | セキュリティ脆弱性検出（OWASP Top 10） | 認証・入力処理・APIエンドポイント・機密データ処理の変更後 |
-| **database-reviewer** | スキーマ設計・クエリ最適化・テナント分離 | DB関連ファイル変更後 |
-| **api-spec-reviewer** | APIエンドポイントの一貫性 | route/・presentation/model/変更後 |
-| **clean-arch-guard** | Clean Architecture依存方向違反検出 | Python backendファイル変更後 |
-| **migration-checker** | マイグレーション漏れ検知 | adapter/model/・models/変更後 |
-| **test-runner** | テスト実行と結果分析 | 実装完了後 |
-| **refactor-cleaner** | デッドコード・重複検出 | コード整理時 |
+## 一覧
 
-## プロアクティブに使用するタイミング
+| Agent | 役割 | モデル |
+|---|---|---|
+| code-reviewer | 正しさ・変更スコープ・規約の横断レビュー。他に該当がない変更のフォールバック | opus |
+| security-reviewer | 脆弱性（認証・認可、インジェクション、シークレット、入力検証、依存監査） | opus |
+| python-reviewer | Python 固有の品質・型・FastAPI / Pydantic。ruff / 型チェック / pip-audit | opus |
+| rust-reviewer | パニック要因・エラー処理・所有権・Tokio。cargo check / clippy / test | opus |
+| frontend-reviewer | TypeScript / React / Next.js、a11y、Orval 生成コード。biome / tsc | opus |
+| database-reviewer | スキーマ設計・クエリ・マイグレーション内容 | opus |
+| api-spec-reviewer | エンドポイントの一貫性・認可の付け忘れ・後方互換性 | opus |
+| refactor-cleaner | デッドコード・重複の検出（削除はしない） | opus |
+| clean-arch-guard | import の依存方向とビジネスルール流出の機械的チェック | sonnet |
+| migration-checker | モデル変更に対するマイグレーション漏れ | sonnet |
+| test-runner | 関係するテストの実行と失敗分析 | sonnet |
 
-ユーザーの指示がなくても、以下の状況では該当agentを自動的に使用する:
+## /rv の振り分け
 
-| 状況 | 使用するagent |
-|------|-------------|
-| Pythonコードを書いた/修正した | **python-reviewer** + **clean-arch-guard** |
-| Rustコードを書いた/修正した | **rust-reviewer** |
-| APIエンドポイントを追加/変更した | **api-spec-reviewer** + **security-reviewer** |
-| DBモデル/マイグレーションを変更した | **database-reviewer** + **migration-checker** |
-| 認証・認可・入力処理を変更した | **security-reviewer** |
-| 実装が完了した | **test-runner** |
-| リファクタリングを行った | **refactor-cleaner** |
+どの変更でどの agent を起動するか、差分が小さいときに agent を使わず 1 パスで済ませる基準は `/rv` スキルに定義している（二重管理を避けるため、ここには書かない）。
 
-## 並列実行
+## 出力の約束
 
-独立したagentは必ず並列で起動する:
+レビュー系 agent はすべて次の 1 行形式で指摘を返す。/rv はこれをマージ・重複排除・検証してから報告する。
 
 ```
-# GOOD: 並列実行（Python backendの変更後）
-同時に起動:
-  1. python-reviewer — コード品質チェック
-  2. clean-arch-guard — 依存方向チェック
-  3. security-reviewer — セキュリティチェック
-
-# BAD: 順次実行（不要な待ち時間）
-python-reviewer → 完了を待つ → clean-arch-guard → 完了を待つ → security-reviewer
+- [CRITICAL|HIGH|MEDIUM] path:line — 問題 → 修正案 (確信度: high|medium)
 ```
 
-### 変更内容別の並列パターン
+確信度がおおむね 80% 以上のものだけを返し、指摘が無ければ `指摘なし` と返す。
 
-**Python backend変更:**
-- python-reviewer + clean-arch-guard + security-reviewer（並列）
-- → test-runner（上記完了後）
+## /dev での利用
 
-**APIエンドポイント変更:**
-- api-spec-reviewer + security-reviewer + clean-arch-guard（並列）
-- → test-runner（上記完了後）
-
-**DBモデル/マイグレーション変更:**
-- database-reviewer + migration-checker（並列）
-- → test-runner（上記完了後）
-
-**Rust変更:**
-- rust-reviewer + security-reviewer（並列）
-
-**大規模リファクタリング:**
-- refactor-cleaner + clean-arch-guard + python-reviewer（並列）
-- → test-runner（上記完了後）
+`/dev` では実装後にテストを実行し（失敗の分析が重いときは test-runner に任せる）、続けて `/rv` でセルフレビューする。
