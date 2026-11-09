@@ -8,7 +8,7 @@
     {
       "name": "my-claude-code",
       "source": "./my-claude-code",
-      "description": "GitHub 向けの実戦用セット: レビュー系 agents (10種) と開発ワークフロー skills (20種)、自動フォーマット hook",
+      "description": "GitHub 向けの実戦用セット: レビュー系 agents (11種) と開発ワークフロー skills (12種)、自動フォーマット hook",
       "category": "workflow",
       "tags": ["code-review", "github", "workflow"]
     }

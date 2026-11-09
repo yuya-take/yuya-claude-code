@@ -5,16 +5,27 @@
 #   curl -fsSL https://raw.githubusercontent.com/yuya-take/yuya-claude-code/main/install.sh | bash
 #
 # 既存ファイルを上書きしたい場合は末尾を | bash -s -- --force にする
+# 廃止済みスキルだけを削除したい場合は | bash -s -- --prune (--force にも含まれる)
 set -euo pipefail
 
 REPO="${YUYA_CLAUDE_CODE_REPO:-yuya-take/yuya-claude-code}"
 PLUGIN_DIR="my-claude-code"
 CLAUDE_DIR="$(pwd)/.claude"
 FORCE=0
+PRUNE=0
+
+# 統合・改名により廃止したスキル (旧バージョンで展開されたものを片付ける)
+DEPRECATED_SKILLS=(
+  dev-wt dev-bc                                     # -> dev
+  code-review code-review-full code-review-est      # -> rv
+  review-pr python-review rust-review security-review # -> rv
+  init                                              # -> setup
+)
 
 for arg in "$@"; do
   case "$arg" in
-    --force) FORCE=1 ;;
+    --force) FORCE=1; PRUNE=1 ;;
+    --prune) PRUNE=1 ;;
     *) echo "unknown option: $arg" >&2; exit 1 ;;
   esac
 done
@@ -62,13 +73,25 @@ for f in "$SRC"/agents/*.md; do
   install_file "$f" "$CLAUDE_DIR/agents/$(basename "$f")"
 done
 
-# skills (setup はプラグイン配布専用のため除外)
+# skills
 for d in "$SRC"/skills/*/; do
   name="$(basename "$d")"
-  [[ "$name" == "setup" ]] && continue
   for f in "$d"*; do
     [[ -f "$f" ]] && install_file "$f" "$CLAUDE_DIR/skills/$name/$(basename "$f")"
   done
+done
+
+# 廃止済みスキルの片付け
+deprecated=() pruned=()
+for name in "${DEPRECATED_SKILLS[@]}"; do
+  dir="$CLAUDE_DIR/skills/$name"
+  [[ -d "$dir" ]] || continue
+  if [[ "$PRUNE" -eq 1 ]]; then
+    rm -rf "$dir"
+    pruned+=("skills/$name")
+  else
+    deprecated+=("skills/$name")
+  fi
 done
 
 # rules
@@ -80,7 +103,7 @@ done
 install_file "$SRC/hooks/format-file.sh" "$CLAUDE_DIR/hooks/format-file.sh"
 chmod +x "$CLAUDE_DIR/hooks/format-file.sh"
 
-# --- settings.json のマージ (permissions.allow の和集合 + format hook の追加) ---
+# --- settings.json のマージ (permissions の和集合 + 未設定キーの追加 + format hook の追加) ---
 mkdir -p "$CLAUDE_DIR"
 SETTINGS_TEMPLATE="$SRC/templates/settings.json" SETTINGS_FILE="$CLAUDE_DIR/settings.json" python3 <<'PY'
 import json, os
@@ -98,12 +121,23 @@ if os.path.exists(settings_path):
 
 changed = []
 
-# permissions.allow の和集合 (既存の順序を保ち、不足分を末尾に追加)
-allow = settings.setdefault("permissions", {}).setdefault("allow", [])
-missing = [e for e in template.get("permissions", {}).get("allow", []) if e not in allow]
-if missing:
-    allow.extend(missing)
-    changed.append(f"permissions.allow に {len(missing)} 件追加")
+# permissions.allow / ask の和集合 (既存の順序を保ち、不足分を末尾に追加)
+perms = settings.setdefault("permissions", {})
+for key in ("allow", "ask"):
+    entries = template.get("permissions", {}).get(key, [])
+    if not entries:
+        continue
+    current = perms.setdefault(key, [])
+    missing = [e for e in entries if e not in current]
+    if missing:
+        current.extend(missing)
+        changed.append(f"permissions.{key} に {len(missing)} 件追加")
+
+# permissions 以外のトップレベルキー (attribution など) は、未設定の場合だけ追加する
+for key, value in template.items():
+    if key not in ("permissions", "hooks") and key not in settings:
+        settings[key] = value
+        changed.append(f"{key} を追加")
 
 # PostToolUse に format-file.sh フックを追加 (既にあれば触らない)
 post = settings.setdefault("hooks", {}).setdefault("PostToolUse", [])
@@ -137,5 +171,14 @@ if [[ ${#skipped[@]} -gt 0 ]]; then
   for f in "${skipped[@]}"; do echo "    - $f"; done
   echo "  ※ 上書きするには --force を付けて再実行してください"
 fi
+if [[ ${#pruned[@]} -gt 0 ]]; then
+  echo "  廃止済みスキルを削除: ${#pruned[@]} 件"
+  for f in "${pruned[@]}"; do echo "    - $f"; done
+fi
+if [[ ${#deprecated[@]} -gt 0 ]]; then
+  echo "  廃止済みスキルが残っています (/dev, /rv, /setup に統合済み): ${#deprecated[@]} 件"
+  for f in "${deprecated[@]}"; do echo "    - $f"; done
+  echo "  ※ 削除するには --prune を付けて再実行してください"
+fi
 echo ""
-echo "完了。プロジェクトに合わせたカスタマイズは Claude Code 内で /init スキルを実行してください。"
+echo "完了。プロジェクトに合わせたカスタマイズは Claude Code 内で /setup スキルを実行してください。"

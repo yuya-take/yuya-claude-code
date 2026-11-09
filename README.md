@@ -16,8 +16,8 @@ yuya-claude-code/            # このリポジトリ
 ├── my-claude-code/          # 配布物本体 (プラグインとしても機能)
 │   ├── .claude-plugin/
 │   │   └── plugin.json      # プラグインマニフェスト
-│   ├── agents/              # 専門エージェント (10種)
-│   ├── skills/              # ワークフロー (20種)
+│   ├── agents/              # 専門エージェント (11種)
+│   ├── skills/              # ワークフロー (12種)
 │   ├── hooks/               # 自動フォーマット (hooks.json + format-file.sh)
 │   ├── rules/               # 常時適用ガイドライン (9種)
 │   └── templates/
@@ -31,9 +31,9 @@ yuya-claude-code/            # このリポジトリ
 
 - リポジトリが **GitHub** でホストされていること
 - [`gh` CLI](https://cli.github.com/) がインストール・認証済み（`gh auth login`）であること
-- **develop** ブランチをデフォルトブランチとして運用していること（違う場合は `/init` で調整）
+- **develop** ブランチをデフォルトブランチとして運用していること（違う場合は `/setup` で調整）
 
-> `gh` が未導入の場合、`/pr`, `/review-pr`, `/issue-create`, `/dev-wt`, `/dev-bc`, `/slack-issue` 等のリモート連携スキルが動作しません。
+> `gh` が未導入の場合、`/pr`, `/rv`（PR モード）, `/issue-create`, `/dev`, `/slack-issue` 等のリモート連携スキルが動作しません。
 
 ---
 
@@ -51,10 +51,11 @@ curl -fsSL https://raw.githubusercontent.com/yuya-take/yuya-claude-code/main/ins
 
 > - **既存ファイルは上書きしません**（内容が異なるファイルはスキップして一覧表示）
 > - 上書きしたい場合は末尾に `| bash -s -- --force` を付けて実行
+> - 旧バージョンの廃止スキル（`dev-wt`, `code-review` など）は `| bash -s -- --prune` で削除（`--force` にも含まれる）
 > - **`settings.json`** は permissions.allow の和集合 + hook の追記のみで、既存の設定は消しません
 > - 更新時も同じコマンドを再実行するだけで追従できます
 
-スキルの呼び出しは `/<skill名>` です (例: `/code-review`)。
+スキルの呼び出しは `/<skill名>` です (例: `/rv`)。
 
 <details>
 <summary>別の方法: プラグインとしてインストール</summary>
@@ -66,8 +67,8 @@ Claude Code 内で以下を実行:
 /plugin install my-claude-code@yuya-claude-code
 ```
 
-スキルは `my-claude-code` でネームスペース化されます (例: `/my-claude-code:code-review`)。
-rules と settings はプラグインの仕組みでは自動ロードされないため、続けて `/my-claude-code:setup` で展開してください。
+スキルは `my-claude-code` でネームスペース化されます (例: `/my-claude-code:rv`)。
+rules と settings はプラグインの仕組みでは自動ロードされないため、続けて `/my-claude-code:setup` を実行してください（展開とカスタマイズをまとめて行います）。
 
 更新は `/plugin marketplace update yuya-claude-code` → `/plugin update my-claude-code@yuya-claude-code`。
 
@@ -75,7 +76,7 @@ rules と settings はプラグインの仕組みでは自動ロードされな�
 
 ### 2. プロジェクトに合わせてカスタマイズ
 
-対象プロジェクトで Claude Code を起動し、`/init` を実行してください。
+対象プロジェクトで Claude Code を起動し、`/setup` を実行してください。
 
 プロジェクトの構造を自動解析し、以下を行います:
 
@@ -91,13 +92,16 @@ rules と settings はプラグインの仕組みでは自動ロードされな�
 
 ## 主要な設定
 
-### Agents (10 種)
+### Agents (11 種)
+
+レビュー系は `/rv` が変更内容に応じて自動で振り分けます。重要な判断を伴う agent は `opus`、機械的なチェック（`clean-arch-guard`, `migration-checker`, `test-runner`）は `sonnet` で動きます。
 
 | Agent | 用途 |
 |-------|------|
 | `code-reviewer` | Clean Architecture 準拠・命名規則・型安全性チェック |
 | `python-reviewer` | Python コード品質レビュー |
 | `rust-reviewer` | Rust コード品質レビュー |
+| `frontend-reviewer` | TypeScript / React コード品質レビュー |
 | `security-reviewer` | セキュリティ脆弱性チェック |
 | `database-reviewer` | DB スキーマ・クエリレビュー |
 | `api-spec-reviewer` | API 仕様レビュー |
@@ -106,32 +110,48 @@ rules と settings はプラグインの仕組みでは自動ロードされな�
 | `refactor-cleaner` | リファクタリング支援 |
 | `test-runner` | テスト実行・結果分析 |
 
-### Skills (20 種)
+### Skills (12 種)
 
 呼び出しは `/<skill名>`（プラグインとしてインストールした場合は `/my-claude-code:<skill名>`）。
+Claude Code 組み込みの `/init`, `/review`, `/code-review`, `/security-review` と名前が衝突しないようにしています。
 
 | Skill | 用途 |
 |-------|------|
-| `setup` | rules / settings を `.claude/` に展開（プラグイン方式専用。ワンライナー展開では不要のため除外） |
-| `code-review` | 未コミット変更のレビュー |
-| `code-review-full` | 包括的コードレビュー |
-| `code-review-est` | 指定フォルダの既存コード全体レビュー |
-| `review-pr` | 指定した既存 PR をレビューし承認後にコメント投稿 |
-| `pr` | Pull Request 作成 |
-| `dev-wt` | Issue 駆動 Worktree 開発 |
-| `dev-bc` | ブランチベース開発 |
-| `explain` | コード解説 |
+| `dev` | Issue / タスクから設計→実装→検証→セルフレビューまで。既定は Worktree、`--branch` でブランチ開発 |
+| `rv` | 統合レビュー。ブランチ差分 / `--staged` / PR / フォルダ監査を自動判別し、変更内容に応じて reviewer を振り分け |
+| `pr` | コミット分割 → プッシュ → PR 作成/更新 |
+| `sync` | ベースブランチの最新化と Worktree の片付け |
+| `setup` | rules / settings の展開とプロジェクトに合わせたカスタマイズ |
 | `issue-create` | Issue 作成 |
 | `issue-refine` | Issue の曖昧な内容をコード解析+対話で詳細化 |
-| `refactor-clean` | リファクタリング |
-| `python-review` | Python 専用レビュー |
-| `rust-review` | Rust 専用レビュー |
-| `security-review` | セキュリティレビュー |
-| `skill-create` | 新規スキル作成 |
 | `slack-issue` | Slack → Issue 連携 |
+| `explain` | コード解説 |
+| `refactor-clean` | デッドコード削除 |
+| `skill-create` | 新規スキル作成 |
 | `troubleshooting` | トラブルシューティング |
-| `init` | プロジェクト初期化・設定カスタマイズ |
-| `sync` | develop ブランチの最新取得 |
+
+#### `/dev`
+
+```text
+/dev #123                 # Worktree で隔離開発（既定）
+/dev #123 --branch        # カレントリポジトリでブランチを切って開発
+/dev "CSV出力を追加"       # Issue なしでも可
+/dev #123 --base feat/epic # 分岐元を指定（既定は develop）
+/dev #123 --quick         # Plan モードを省略（小さな修正向け）
+```
+
+#### `/rv`
+
+```text
+/rv                       # ブランチ差分（分岐点から + 未コミット分）
+/rv --staged              # ステージ済みのみ
+/rv #45                   # PR をレビューし、承認後にコメント投稿
+/rv backend/app/domain/   # 既存コードの監査
+/rv --deep                # 規模に関係なく全 reviewer を起動
+/rv --fix                 # CRITICAL/HIGH を修正して再検証
+```
+
+変更ファイルを分類して必要な reviewer だけを並列起動し（小さな差分ではサブエージェントを使わず 1 パス）、CRITICAL/HIGH はコードを読み直して裏取りしてから報告します。
 
 ### Rules (9 種)
 
@@ -147,9 +167,9 @@ Clean Architecture, 命名規則, Git ワークフロー, Python/Rust/フロン�
 
 **まず試すならこの 3 つ:**
 
-1. `/code-review` — 日常的なコードレビュー
-2. `/pr` — PR 作成の自動化
-3. `/dev-wt` — Issue から Worktree を切って開発
+1. `/dev #123` — Issue から開発（Worktree）
+2. `/rv` — 変更内容に合わせたレビュー
+3. `/pr` — PR 作成の自動化
 
 ---
 
