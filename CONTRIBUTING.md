@@ -88,6 +88,20 @@ description: 説明
 
 ---
 
+## このリポジトリでの開発
+
+このリポジトリの `.claude/` には、配布物から開発に必要なものを symlink で置いている。配布物を直すと、このリポジトリでの動作にもそのまま反映される。
+
+| 種類 | 置いているもの |
+|---|---|
+| skills | `dev`, `rv`, `pr`, `sync`（`my-claude-code/skills/` への symlink） |
+| agents | `code-reviewer`, `security-reviewer`（`my-claude-code/agents/` への symlink） |
+| このリポジトリ専用 | `model-tune` — 新しいモデルや Claude Code の仕様変更に合わせて配布物を点検・修正する |
+
+新しい Claude モデルが出たときや、Claude Code のスキル・agent・settings の仕様が変わったときは `/model-tune` を実行する。点検の記録は `.claude/skills/model-tune/history.md` に残る。
+
+---
+
 ## 変更時の作業
 
 - Agents / Skills / Hooks / Rules を変更した場合: コミットするだけで配布される（バージョンは git コミット SHA ベース）
