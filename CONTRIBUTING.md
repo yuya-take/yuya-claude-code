@@ -103,7 +103,7 @@ description: 説明
 
 | 種類 | 置いているもの |
 |---|---|
-| skills | `dev`, `pr`, `sync`（`packs/dev-flow/skills/` への symlink）、`rv`（`packs/review/skills/` への symlink） |
+| skills | `dev`, `orchestrate`, `pr`, `sync`（`packs/dev-flow/skills/` への symlink）、`rv`（`packs/review/skills/` への symlink） |
 | agents | `code-reviewer`, `security-reviewer`（`packs/review/agents/` への symlink） |
 | このリポジトリ専用 | `model-tune` — 新しいモデルや Claude Code の仕様変更に合わせて配布物を点検・修正する |
 
