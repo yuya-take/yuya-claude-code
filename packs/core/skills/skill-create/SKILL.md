@@ -1,7 +1,8 @@
 ---
 name: skill-create
 description: git の履歴を分析してチームのコーディングパターン（コミット規約・同時に変更されるファイル群・定型ワークフロー）を抽出し、SKILL.md を生成する。
-argument-hint: [--commits N]
+argument-hint: "[--commits N]"
+disable-model-invocation: true
 ---
 
 # /skill-create - ローカルスキル生成

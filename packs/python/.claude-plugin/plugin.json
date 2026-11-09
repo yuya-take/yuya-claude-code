@@ -1,6 +1,6 @@
 {
   "name": "python",
-  "description": "Python バックエンド: Python / 命名 / Clean Architecture / DB の rules、ruff の自動フォーマット",
+  "description": "Python バックエンド: Python / 命名 / Clean Architecture / DB の rules、/troubleshooting（サービス起動・DB・マイグレーションの対処）、ruff の自動フォーマット",
   "author": {
     "name": "yuya-take"
   },

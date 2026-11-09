@@ -68,6 +68,8 @@ prune = args.prune or args.force
 
 KINDS = ["skills", "agents", "rules", "hooks", "settings"]
 BASE_PACKS = ["core", "review", "dev-flow"]
+# 統合・廃止した pack (旧名 -> 統合先)。導入記録や --packs に旧名があっても動くようにする
+RENAMED_PACKS = {"issue": "dev-flow", "extras": "core"}
 # 言語 pack の自動検出に使うファイル
 DETECT = {
     "python": ["pyproject.toml", "requirements.txt", "setup.py"],
@@ -85,6 +87,7 @@ DEPRECATED = [
     "agents/clean-arch-guard.md",                                       # -> python-reviewer
     "agents/migration-checker.md",                                      # -> database-reviewer
     "hooks/format-file.sh",                                             # -> format-python.sh / format-frontend.sh
+    "skills/slack-issue",                                               # 廃止
 ]
 
 claude = project / ".claude"
@@ -146,6 +149,9 @@ def resolve(requested):
         resolved.append(name)
 
     for name in requested:
+        if name in RENAMED_PACKS:
+            print(f"==> pack '{name}' は '{RENAMED_PACKS[name]}' に統合されたため、'{RENAMED_PACKS[name]}' として扱います")
+            name = RENAMED_PACKS[name]
         visit(name, [])
     return sorted(resolved, key=order.index)
 
@@ -259,12 +265,20 @@ for name in order:
                 stale.append(rel)
                 new_files[rel] = sha(path)
 
+def recorded_under(rel):
+    # 導入記録で管理しているもの (そのパス自体か、その配下のファイル) は、記録側で扱う
+    return any(r == rel or r.startswith(rel + "/") for r in list(old_files) + list(new_files))
+
+
 legacy = [rel for rel in DEPRECATED
-          if kind_of(rel) in kinds and rel not in planned and rel not in old_files and (claude / rel).exists()]
+          if kind_of(rel) in kinds and rel not in planned and not recorded_under(rel) and (claude / rel).exists()]
 
 
 def remove(rel):
     target = claude / rel
+    if not target.exists():
+        new_files.pop(rel, None)
+        return
     if target.is_dir():
         shutil.rmtree(target)
     else:

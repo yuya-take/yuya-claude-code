@@ -10,10 +10,8 @@
     "core",
     "review",
     "dev-flow",
-    "issue",
     "python",
     "frontend",
-    "rust",
-    "extras"
+    "rust"
   ]
 }

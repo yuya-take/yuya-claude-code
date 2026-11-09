@@ -1,6 +1,6 @@
 {
   "name": "dev-flow",
-  "description": "開発フロー: /dev（Issue から Worktree で設計・実装・セルフレビュー）、/pr、/sync",
+  "description": "開発フロー: /issue-create・/issue-refine（Issue の作成と詳細化）、/dev（Issue から Worktree で設計・実装・セルフレビュー）、/pr、/sync",
   "author": {
     "name": "yuya-take"
   },

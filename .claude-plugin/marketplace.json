@@ -8,7 +8,7 @@
     {
       "name": "core",
       "source": "./packs/core",
-      "description": "共通の土台: /setup（展開とプロジェクトに合わせた調整）、/explain、Git ワークフローの rule、基本の permissions",
+      "description": "共通の土台: /setup（展開とプロジェクトに合わせた調整）、/explain、/skill-create（git 履歴からスキル生成）、Git ワークフローの rule、基本の permissions",
       "category": "workflow"
     },
     {
@@ -20,19 +20,13 @@
     {
       "name": "dev-flow",
       "source": "./packs/dev-flow",
-      "description": "開発フロー: /dev（Issue から Worktree で設計・実装・セルフレビュー）、/pr、/sync",
-      "category": "workflow"
-    },
-    {
-      "name": "issue",
-      "source": "./packs/issue",
-      "description": "Issue 運用: /issue-create、/issue-refine、/slack-issue",
+      "description": "開発フロー: /issue-create・/issue-refine（Issue の作成と詳細化）、/dev（Issue から Worktree で設計・実装・セルフレビュー）、/pr、/sync",
       "category": "workflow"
     },
     {
       "name": "python",
       "source": "./packs/python",
-      "description": "Python バックエンド: Python / 命名 / Clean Architecture / DB の rules、ruff の自動フォーマット",
+      "description": "Python バックエンド: Python / 命名 / Clean Architecture / DB の rules、/troubleshooting（サービス起動・DB・マイグレーションの対処）、ruff の自動フォーマット",
       "category": "workflow"
     },
     {
@@ -45,12 +39,6 @@
       "name": "rust",
       "source": "./packs/rust",
       "description": "Rust: Rust の rules と cargo の permissions",
-      "category": "workflow"
-    },
-    {
-      "name": "extras",
-      "source": "./packs/extras",
-      "description": "その他: /skill-create（git 履歴からスキル生成）、/troubleshooting",
       "category": "workflow"
     },
     {
