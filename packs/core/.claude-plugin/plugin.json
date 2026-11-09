@@ -1,0 +1,9 @@
+{
+  "name": "core",
+  "description": "共通の土台: /setup（展開とプロジェクトに合わせた調整）、/explain、Git ワークフローの rule、基本の permissions",
+  "author": {
+    "name": "yuya-take"
+  },
+  "homepage": "https://github.com/yuya-take/yuya-claude-code",
+  "repository": "https://github.com/yuya-take/yuya-claude-code"
+}

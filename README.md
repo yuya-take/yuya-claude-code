@@ -1,29 +1,25 @@
 # yuya-claude-code
 
-自分用の Claude Code 設定集です。`gh` コマンドのワンライナーで各プロジェクトの `.claude/` に展開して使います。
+自分用の Claude Code 設定集です。用途ごとの **pack** に分かれていて、プロジェクトに必要な pack だけを `.claude/` に展開して使います。
 
 実戦投入されている agents, skills, rules, hooks をベースにしています。
 
 ---
 
-## 構成
+## pack
 
-```text
-yuya-claude-code/            # このリポジトリ
-├── install.sh               # ワンライナー展開用スクリプト
-├── .claude-plugin/
-│   └── marketplace.json     # マーケットプレイスカタログ (プラグイン方式用)
-├── my-claude-code/          # 配布物本体 (プラグインとしても機能)
-│   ├── .claude-plugin/
-│   │   └── plugin.json      # プラグインマニフェスト
-│   ├── agents/              # 専門エージェント (9種)
-│   ├── skills/              # ワークフロー (12種)
-│   ├── hooks/               # 自動フォーマット (hooks.json + format-file.sh)
-│   ├── rules/               # 常時適用ガイドライン (9種)
-│   └── templates/
-│       └── settings.json    # permissions テンプレート
-└── mcp/                     # 将来追加する MCP サーバー用 (mcp/README.md 参照)
-```
+| pack | 中身 | 依存 |
+|------|------|------|
+| `core` | `/setup`（展開とプロジェクトに合わせた調整）、`/explain`、Git ワークフローの rule、基本の permissions | — |
+| `review` | `/rv`（統合レビュー）、`/refactor-clean`、reviewer agent 一式、agents rule | core |
+| `dev-flow` | `/dev`（Issue から設計・実装・セルフレビュー）、`/pr`、`/sync` | core, review |
+| `issue` | `/issue-create`、`/issue-refine`、`/slack-issue` | core |
+| `python` | Python / 命名 / Clean Architecture / DB の rules、ruff の自動フォーマット、uv・pytest の permissions | core |
+| `frontend` | TypeScript / React / Orval の rules、biome の自動フォーマット、npm の permissions | core |
+| `rust` | Rust の rules、cargo の permissions | core |
+| `extras` | `/skill-create`（git 履歴からスキル生成）、`/troubleshooting` | core |
+
+依存する pack は自動で一緒に入ります。reviewer agent は言語に関係なくすべて `review` に入っています。`/rv` は変更されたファイルの種類に合う reviewer だけを起動するので、使わない言語の reviewer が動くことはありません。
 
 ---
 
@@ -31,46 +27,63 @@ yuya-claude-code/            # このリポジトリ
 
 - リポジトリが **GitHub** でホストされていること
 - [`gh` CLI](https://cli.github.com/) がインストール・認証済み（`gh auth login`）であること
-- **develop** ブランチをデフォルトブランチとして運用していること（違う場合は `/setup` で調整）
+- `python3` と `git` があること（install.sh が使います）
 
-> `gh` が未導入の場合、`/pr`, `/rv`（PR モード）, `/issue-create`, `/dev`, `/slack-issue` 等のリモート連携スキルが動作しません。
+ベースブランチは `develop` があればそれを、無ければリモートのデフォルトブランチ（`main` など）を使います。
 
 ---
 
 ## セットアップ
 
-### 1. ワンライナーで展開 (agents / skills / rules / hooks / settings)
+### 1. pack を展開する
 
-対象プロジェクトのルートで実行:
+対象プロジェクトのルートで実行します。
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/yuya-take/yuya-claude-code/main/install.sh | bash
 ```
 
-`.claude/` 配下に agents / skills / rules / hooks が展開され、`settings.json` に permissions と自動フォーマット hook がマージされます。
+`--packs` を指定しない初回は、`core`・`review`・`dev-flow` と、プロジェクトのファイルから検出した言語の pack を入れます。検出に使うファイルは、`pyproject.toml` / `requirements.txt` が python、`package.json` が frontend、`Cargo.toml` が rust です。2 回目以降は前回と同じ pack を使います。
 
-> - **既存ファイルは上書きしません**（内容が異なるファイルはスキップして一覧表示）
-> - 上書きしたい場合は末尾に `| bash -s -- --force` を付けて実行
-> - 旧バージョンの廃止スキル・agent（`dev-wt`, `code-review`, `clean-arch-guard` など）は `| bash -s -- --prune` で削除（`--force` にも含まれる）
-> - **`settings.json`** は permissions.allow の和集合 + hook の追記のみで、既存の設定は消しません
-> - 更新時も同じコマンドを再実行するだけで追従できます
+```bash
+# 入れる pack を指定する（依存する pack は自動で追加）
+curl -fsSL .../install.sh | bash -s -- --packs dev-flow,python,issue
 
-スキルの呼び出しは `/<skill名>` です (例: `/rv`)。
+# 全部入れる
+curl -fsSL .../install.sh | bash -s -- --packs all
+
+# pack の一覧と、このプロジェクトでの選択を表示する
+curl -fsSL .../install.sh | bash -s -- --list
+```
+
+`.claude/` には skills / agents / rules / hooks が展開されます。`.claude/settings.json` には、選んだ pack の permissions と自動フォーマットの hook がマージされます。
+
+- **更新:** 同じコマンドを再実行します。手元で変更していないファイルは、配布元の最新版に更新されます。
+- **手元で変更したファイル:** 上書きせず、スキップして一覧に出します。上書きするには `--force` を付けます。
+- **不要になったファイル:** pack を外したときや、廃止したスキル・agent が残っているときは、一覧に出します。`--prune`（`--force` にも含まれる）で削除します。削除するのは、このスクリプトが入れたもので、かつ手元で変更していないファイルだけです。
+- **`settings.json`:** permissions の追加と hook の登録だけを行い、既存の設定は消しません。
+- **導入記録:** 入れた pack とファイルは `.claude/.yuya-claude-code.json` に記録されます。チームで共有する場合は、`.claude/` ごとコミットしてください。
+
+スキルの呼び出しは `/<skill名>` です（例: `/rv`）。
 
 <details>
 <summary>別の方法: プラグインとしてインストール</summary>
 
-Claude Code 内で以下を実行:
+Claude Code 内で、marketplace を追加してから必要な pack を入れます。依存する pack は自動で入ります。
 
 ```shell
 /plugin marketplace add yuya-take/yuya-claude-code
-/plugin install my-claude-code@yuya-claude-code
+/plugin install dev-flow@yuya-claude-code
+/plugin install python@yuya-claude-code
+# 全部入れる場合
+/plugin install all@yuya-claude-code
 ```
 
-スキルは `my-claude-code` でネームスペース化されます (例: `/my-claude-code:rv`)。
-rules と settings はプラグインの仕組みでは自動ロードされないため、続けて `/my-claude-code:setup` を実行してください（展開とカスタマイズをまとめて行います）。
+スキルは pack 名で名前空間化されます（例: `/dev-flow:dev`, `/review:rv`, `/core:setup`）。
 
-更新は `/plugin marketplace update yuya-claude-code` → `/plugin update my-claude-code@yuya-claude-code`。
+rules と permissions はプラグインの仕組みでは配布されないため、続けて `/core:setup` を実行してください。入れた pack の rules と permissions の展開、プロジェクトに合わせた調整までまとめて行います。
+
+更新は `/plugin marketplace update yuya-claude-code` の後、各 pack を `/plugin update` してください。
 
 </details>
 
@@ -78,67 +91,36 @@ rules と settings はプラグインの仕組みでは自動ロードされな�
 
 対象プロジェクトで Claude Code を起動し、`/setup` を実行してください。
 
-プロジェクトの構造を自動解析し、以下を行います:
+プロジェクトの構造を解析し、次を行います。
 
-- 環境チェック（GitHub リモート、`gh` CLI の導入・認証、`develop` ブランチの確認）
-- 設定ファイル内の例をプロジェクトの実際のパスに置換
-- `settings.json` の permissions をプロジェクトに合わせて調整
-- `rules/` の `paths:` をプロジェクトのディレクトリ構成に更新
-- `test-runner` のテストコマンドを実際の構成に更新
+- 環境チェック（GitHub リモート、`gh` CLI の導入・認証、ベースブランチ、Worktree 用の `.gitignore`）
+- rules の `paths:` と例示を、プロジェクトの実際のディレクトリやコマンドに合わせる
+- `settings.json` の permissions を、プロジェクトで使うコマンドに合わせる
+- `/rv` の振り分け表や `test-runner` のテストコマンドを、実際の構成に合わせる
 
-プロジェクト構成が変わった時も再実行すれば更新できます。
+プロジェクトの構成が変わったときも、再実行すれば更新できます。
 
 ---
 
-## 主要な設定
+## 主なスキル
 
-### Agents (9 種)
+**まず試すならこの 3 つ:**
 
-レビュー系は `/rv` が変更内容に応じて自動で振り分けます。レビュー系は `opus`、`test-runner` は `sonnet` で動きます。各 reviewer は確信度付きで指摘を網羅的に返し、絞り込みは `/rv` がまとめて行います（Opus 4.7 以降は「重要なものだけ報告」と指示すると見落としが増えるため）。
+1. `/dev #123` — Issue から開発（Worktree）
+2. `/rv` — 変更内容に合わせたレビュー
+3. `/pr` — PR 作成の自動化
 
-| Agent | 用途 |
-|-------|------|
-| `code-reviewer` | 正しさ・変更スコープ・規約の横断レビュー（他に該当がない変更のフォールバック） |
-| `python-reviewer` | Python コード品質・Clean Architecture のレイヤー違反 |
-| `rust-reviewer` | Rust コード品質レビュー |
-| `frontend-reviewer` | TypeScript / React コード品質レビュー |
-| `security-reviewer` | セキュリティ脆弱性チェック |
-| `database-reviewer` | DB スキーマ・クエリ・マイグレーションの内容と反映漏れ |
-| `api-spec-reviewer` | API 仕様レビュー |
-| `refactor-cleaner` | デッドコード・重複の検出 |
-| `test-runner` | テスト実行・失敗分析（指示したときだけ使う） |
-
-### Skills (12 種)
-
-呼び出しは `/<skill名>`（プラグインとしてインストールした場合は `/my-claude-code:<skill名>`）。
-Claude Code 組み込みの `/init`, `/review`, `/code-review`, `/security-review` と名前が衝突しないようにしています。
-
-| Skill | 用途 |
-|-------|------|
-| `dev` | Issue / タスクから設計→実装→検証→セルフレビューまで。既定は Worktree、`--branch` でブランチ開発 |
-| `rv` | 統合レビュー。ブランチ差分 / `--staged` / PR / フォルダ監査を自動判別し、変更内容に応じて reviewer を振り分け |
-| `pr` | コミット分割 → プッシュ → PR 作成/更新 |
-| `sync` | ベースブランチの最新化と Worktree の片付け |
-| `setup` | rules / settings の展開とプロジェクトに合わせたカスタマイズ |
-| `issue-create` | Issue 作成 |
-| `issue-refine` | Issue の曖昧な内容をコード解析+対話で詳細化 |
-| `slack-issue` | Slack → Issue 連携 |
-| `explain` | コード解説 |
-| `refactor-clean` | デッドコード削除 |
-| `skill-create` | 新規スキル作成 |
-| `troubleshooting` | トラブルシューティング |
-
-#### `/dev`
+#### `/dev`（dev-flow）
 
 ```text
-/dev #123                 # Worktree で隔離開発（既定）
-/dev #123 --branch        # カレントリポジトリでブランチを切って開発
-/dev "CSV出力を追加"       # Issue なしでも可
-/dev #123 --base feat/epic # 分岐元を指定（既定は develop）
-/dev #123 --quick         # Plan モードを省略（小さな修正向け）
+/dev #123                  # Worktree で隔離開発（既定）
+/dev #123 --branch         # カレントリポジトリでブランチを切って開発
+/dev "CSV出力を追加"        # Issue なしでも可
+/dev #123 --base feat/epic # 分岐元を指定（既定は develop、無ければデフォルトブランチ）
+/dev #123 --quick          # Plan モードを省略（小さな修正向け）
 ```
 
-#### `/rv`
+#### `/rv`（review）
 
 ```text
 /rv                       # ブランチ差分（分岐点から + 未コミット分）
@@ -149,41 +131,44 @@ Claude Code 組み込みの `/init`, `/review`, `/code-review`, `/security-revie
 /rv --fix                 # CRITICAL/HIGH を修正して再検証
 ```
 
-変更ファイルを分類して必要な reviewer だけを並列起動し（小さな差分ではサブエージェントを使わず 1 パス）、CRITICAL/HIGH はコードを読み直して裏取りしてから報告します。
+変更ファイルを分類して、必要な reviewer だけを並列で起動します。小さな差分ではサブエージェントを使わず、1 パスでレビューします。各 reviewer は確信度付きで指摘を網羅的に返し、`/rv` が CRITICAL/HIGH をコードで裏取りしてから報告します（Opus 4.7 以降のモデルは「重要なものだけ報告」と指示すると見落としが増えるため、絞り込みを別の段階に分けています）。
 
-### Rules (9 種)
-
-Clean Architecture, 命名規則, Git ワークフロー, Python/Rust/フロントエンド標準, DB, Orval, エージェント利用ルール
-
-### Hooks
-
-- `PostToolUse (Edit|Write)` → 自動フォーマット実行（ワンライナー展開時は `.claude/settings.json` に登録され、`.claude/hooks/format-file.sh` が実行されます）
+Claude Code 組み込みの `/init`, `/review`, `/code-review`, `/security-review` とは名前が衝突しないようにしています。
 
 ---
 
-## 使い分けガイド
+## リポジトリ構成
 
-**まず試すならこの 3 つ:**
+```text
+yuya-claude-code/
+├── install.sh                 # pack を .claude/ に展開するスクリプト
+├── .claude-plugin/
+│   └── marketplace.json       # marketplace カタログ（pack ごとのプラグインと bundle を列挙）
+├── packs/
+│   └── <pack>/                # 1 pack = 1 プラグイン
+│       ├── .claude-plugin/
+│       │   └── plugin.json    # 説明と依存する pack（install.sh もこれを読む）
+│       ├── skills/ agents/ rules/
+│       ├── hooks/             # hooks.json とフックスクリプト
+│       └── project-settings.json  # 利用先の settings.json にマージする permissions など
+├── bundles/
+│   └── all/                   # 全 pack に依存するだけの bundle プラグイン
+├── mcp/                       # 将来追加する MCP サーバー用（mcp/README.md 参照）
+└── .claude/                   # このリポジトリ自身の開発用（packs/ への symlink と /model-tune）
+```
 
-1. `/dev #123` — Issue から開発（Worktree）
-2. `/rv` — 変更内容に合わせたレビュー
-3. `/pr` — PR 作成の自動化
+---
+
+## 旧バージョンからの移行
+
+- **install.sh で入れていた場合:** 同じコマンドを再実行してください。旧バージョンで入れた全 pack 分のファイルのうち、選ばれなかった pack のものや、廃止したスキル・agent（`dev-wt`, `code-review`, `clean-arch-guard` など）、旧フォーマット hook（`format-file.sh`）が「不要」として一覧に出ます。`--prune` を付けると削除されます。
+- **`my-claude-code` プラグインを入れていた場合:** `/plugin uninstall my-claude-code@yuya-claude-code` の後、必要な pack（または `all`）を入れ直してください。スキル名は `/my-claude-code:rv` から `/review:rv` のように変わります。
 
 ---
 
 ## MCP サーバーの追加
 
 将来の MCP サーバーは `mcp/` 配下に 1 サーバー = 1 プラグインで追加し、`.claude-plugin/marketplace.json` にエントリを足します。手順は [mcp/README.md](mcp/README.md) を参照してください。
-
----
-
-## マーケットプレイスの検証
-
-変更をコミットする前に:
-
-```bash
-claude plugin validate .
-```
 
 ---
 

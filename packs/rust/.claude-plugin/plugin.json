@@ -1,0 +1,12 @@
+{
+  "name": "rust",
+  "description": "Rust: Rust の rules と cargo の permissions",
+  "author": {
+    "name": "yuya-take"
+  },
+  "homepage": "https://github.com/yuya-take/yuya-claude-code",
+  "repository": "https://github.com/yuya-take/yuya-claude-code",
+  "dependencies": [
+    "core"
+  ]
+}

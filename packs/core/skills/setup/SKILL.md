@@ -1,6 +1,6 @@
 ---
 name: setup
-description: このセットの rules / settings を .claude/ に展開し、プロジェクトの構成（言語・パス・テストコマンド・ブランチ運用）に合わせてカスタマイズする。導入直後、プラグイン更新後、プロジェクト構成が変わったときに実行。
+description: 導入した pack の rules / settings を .claude/ に展開し、プロジェクトの構成（言語・パス・テストコマンド・ブランチ運用）に合わせてカスタマイズする。導入直後、プラグイン更新後、プロジェクト構成が変わったときに実行。
 disable-model-invocation: true
 ---
 
@@ -10,12 +10,19 @@ disable-model-invocation: true
 
 ## 1. rules / settings の展開（プラグイン導入時のみ）
 
-`.claude/rules/` に本セットの rules（`clean-architecture.md`, `git-workflow.md` など）が既にある場合は、install.sh で展開済みなのでこのステップを飛ばす。
+`.claude/.yuya-claude-code.json`（install.sh の導入記録）がある場合は、install.sh で展開済みなのでこのステップを飛ばす。pack の追加・削除は、install.sh を `--packs` 付きで再実行すれば行える（`--list` で一覧と現在の選択を表示できる）。
 
-プラグインとして導入した場合、rules と settings は自動では配布されないので、プラグイン本体からコピーする。配布元はプラグインルート `${CLAUDE_SKILL_DIR}/../..`:
+プラグインとして導入した場合、rules と permissions はプラグインの仕組みでは配布されないので、install.sh の rules と settings だけを展開するモードで入れる。
 
-- `rules/*.md` → `.claude/rules/`。同名ファイルが既にあり内容が違う場合は、差分の概要を示して上書きするか確認する
-- `templates/settings.json` → `.claude/settings.json`。ファイルが無ければコピーする。あれば `permissions.allow` / `permissions.ask` の和集合を取り、`attribution` などのトップレベルキーは未設定の場合だけ追加する（既存の値は変えない）
+1. `claude plugin list` で、このリポジトリ（marketplace `yuya-claude-code`）から入れている pack を確認する（`all` を入れている場合は全 pack）
+2. marketplace の複製（`~/.claude/plugins/marketplaces/yuya-claude-code/`。`CLAUDE_CODE_PLUGIN_CACHE_DIR` を設定している場合はその配下）にある install.sh を、プロジェクトのルートで実行する:
+
+   ```bash
+   bash ~/.claude/plugins/marketplaces/yuya-claude-code/install.sh --only rules,settings --packs <確認した pack をカンマ区切りで>
+   ```
+
+   複製が見つからない場合は、`curl -fsSL https://raw.githubusercontent.com/yuya-take/yuya-claude-code/main/install.sh | bash -s -- --only rules,settings --packs ...` で実行する
+3. 出力にスキップ（手元で変更済み）が出た場合は、差分の概要を示し、`--force` で上書きするかユーザーに確認する
 
 ## 2. 環境チェック
 
@@ -61,8 +68,8 @@ disable-model-invocation: true
 - **rules の `paths:`**: `clean-architecture.md`、`database.md`、`frontend-standards.md`、`naming-conventions.md`、`orval.md`、`python-standards.md`、`rust-standards.md` の frontmatter を実際のディレクトリに合わせる。使わない言語の rules は削除を提案する。`paths:` の無い rules（`agents.md`, `git-workflow.md`）は常時適用なので触らない
 - **rules 本文の例示**: サンプルパスやコマンドを実際のものに置き換える。ベースブランチが develop でない場合は `git-workflow.md` を書き換える
 - **`/rv` の振り分け表**: `skills/rv/SKILL.md` のステップ 2 の表のパス例を、実際のレイヤー・API・DB のパスに合わせる（install.sh で展開した場合のみ。プラグインのスキルは編集しない）
-- **agents**: `test-runner.md` のテストコマンド表、各 reviewer の対象パスを実態に合わせる
-- **troubleshooting スキル**: `skills/troubleshooting/SKILL.md` の Makefile ターゲット・環境変数・ポート番号の例を実際のものに置き換える。対応するものがなければ削除を提案する
+- **agents**（install.sh で導入した場合のみ）: `test-runner.md` のテストコマンド表、各 reviewer の対象パスを実態に合わせる
+- **troubleshooting スキル**（extras pack を install.sh で導入した場合のみ）: `skills/troubleshooting/SKILL.md` の Makefile ターゲット・環境変数・ポート番号の例を実際のものに置き換える。対応するものがなければ削除を提案する
 - **settings.json**: `permissions.allow` を、プロジェクトで実際に使う lint / test / build コマンドに合わせる。使わないツールのエントリは削除を提案する
 
 ## 6. 完了報告

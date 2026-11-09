@@ -3,14 +3,61 @@
   "owner": {
     "name": "yuya-take"
   },
-  "description": "yuya-take の個人用 Claude Code プラグインマーケットプレイス",
+  "description": "yuya-take の Claude Code 設定集。必要な pack だけを選んで入れられる",
   "plugins": [
     {
-      "name": "my-claude-code",
-      "source": "./my-claude-code",
-      "description": "GitHub 向けの実戦用セット: レビュー系 agents (9種) と開発ワークフロー skills (12種)、自動フォーマット hook",
-      "category": "workflow",
-      "tags": ["code-review", "github", "workflow"]
+      "name": "core",
+      "source": "./packs/core",
+      "description": "共通の土台: /setup（展開とプロジェクトに合わせた調整）、/explain、Git ワークフローの rule、基本の permissions",
+      "category": "workflow"
+    },
+    {
+      "name": "review",
+      "source": "./packs/review",
+      "description": "レビュー: /rv（変更内容に応じて reviewer を振り分ける統合レビュー）、/refactor-clean、reviewer agent 一式",
+      "category": "workflow"
+    },
+    {
+      "name": "dev-flow",
+      "source": "./packs/dev-flow",
+      "description": "開発フロー: /dev（Issue から Worktree で設計・実装・セルフレビュー）、/pr、/sync",
+      "category": "workflow"
+    },
+    {
+      "name": "issue",
+      "source": "./packs/issue",
+      "description": "Issue 運用: /issue-create、/issue-refine、/slack-issue",
+      "category": "workflow"
+    },
+    {
+      "name": "python",
+      "source": "./packs/python",
+      "description": "Python バックエンド: Python / 命名 / Clean Architecture / DB の rules、ruff の自動フォーマット",
+      "category": "workflow"
+    },
+    {
+      "name": "frontend",
+      "source": "./packs/frontend",
+      "description": "フロントエンド: TypeScript / React / Orval の rules、biome の自動フォーマット",
+      "category": "workflow"
+    },
+    {
+      "name": "rust",
+      "source": "./packs/rust",
+      "description": "Rust: Rust の rules と cargo の permissions",
+      "category": "workflow"
+    },
+    {
+      "name": "extras",
+      "source": "./packs/extras",
+      "description": "その他: /skill-create（git 履歴からスキル生成）、/troubleshooting",
+      "category": "workflow"
+    },
+    {
+      "name": "all",
+      "source": "./bundles/all",
+      "description": "すべての pack をまとめて入れる bundle",
+      "category": "workflow"
     }
   ]
 }

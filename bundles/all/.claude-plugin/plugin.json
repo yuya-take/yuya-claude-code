@@ -1,0 +1,19 @@
+{
+  "name": "all",
+  "description": "すべての pack をまとめて入れる bundle",
+  "author": {
+    "name": "yuya-take"
+  },
+  "homepage": "https://github.com/yuya-take/yuya-claude-code",
+  "repository": "https://github.com/yuya-take/yuya-claude-code",
+  "dependencies": [
+    "core",
+    "review",
+    "dev-flow",
+    "issue",
+    "python",
+    "frontend",
+    "rust",
+    "extras"
+  ]
+}

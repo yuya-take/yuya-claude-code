@@ -1,1 +1,1 @@
-../../my-claude-code/agents/security-reviewer.md
+../../packs/review/agents/security-reviewer.md
