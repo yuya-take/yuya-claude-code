@@ -2,7 +2,6 @@
 name: rv
 description: コードレビューの統合入口。ブランチ差分・未コミット変更・PR・既存フォルダのいずれも対象にでき、変更内容に応じて専門 reviewer エージェントを振り分けて並列実行し、重要指摘を裏取りしてから報告する。「レビューして」「PR 見て」「このフォルダ監査して」などで使用。
 argument-hint: "[#PR | PR URL | パス] [--base <branch>] [--staged] [--deep] [--fix]"
-effort: high
 ---
 
 # /rv
@@ -32,10 +31,9 @@ PR モードでは、作業ツリーが PR のコードと一致していると�
 
 | 該当するファイル | 起動するエージェント |
 |------------------|----------------------|
-| `*.py` | `python-reviewer` |
-| Python backend の `domain/` `application/` `usecase/` `adapter/` `presentation/` 配下 | `clean-arch-guard` |
+| `*.py` | `python-reviewer`（backend の `domain/` `application/` `usecase/` `adapter/` `presentation/` 配下なら Clean Architecture の観点も含む） |
 | `route/` `router/` `presentation/model/` `schema/` 、OpenAPI 定義 | `api-spec-reviewer` |
-| `models/` `model/` `migrations/` `alembic/` `repository/` `seed/` 、`*.sql` | `database-reviewer`、モデル変更があれば `migration-checker` |
+| `models/` `model/` `migrations/` `alembic/` `repository/` `seed/` 、`*.sql` | `database-reviewer`（モデル変更ならマイグレーションの反映漏れも確認する） |
 | `*.ts` `*.tsx` `*.js` `*.jsx` `*.vue` | `frontend-reviewer` |
 | `*.rs`、`Cargo.toml` | `rust-reviewer` |
 | 認証・認可、セッション/トークン、入力の受け口（route/handler/form）、ファイル I/O、外部リクエスト、コマンド実行、暗号、シークレット、依存定義（lock ファイル、`pyproject.toml`、`package.json`、`Cargo.toml`）、`Dockerfile`/CI/IaC | `security-reviewer` |
@@ -60,7 +58,7 @@ Makefile や package.json に lint / 型チェックのターゲットがあれ�
 規模に応じて実行方法を変える。サブエージェントの起動コストと要約による情報の損失より、並列化の利益が大きいときだけ分割する。
 
 - **小（変更 ~300 行以内かつ該当エージェント 2 つ以下）**: サブエージェントを使わず、自分で該当エージェントの定義ファイル（`${CLAUDE_SKILL_DIR}/../../agents/<name>.md`）を読み、そのチェック観点で直接レビューする
-- **中〜大**: 該当エージェントを Agent ツールで並列起動する。ファイル数が多い場合は、同じエージェントをディレクトリ単位で複数に分けてよい（1 エージェントあたり目安 15 ファイル）
+- **中〜大**: 該当エージェントを Agent ツールで並列起動する。同じエージェントをファイル単位やディレクトリ単位で複数に分けない（起動ごとに文脈の読み直しが発生し、結果の統合も重くなるため）
 - **`--deep`**: 規模に関係なく該当エージェントをすべて並列起動し、`security-reviewer`・`code-reviewer`・`refactor-cleaner` を常に加える。`refactor-cleaner` の結果（SAFE / CAREFUL / RISKY）は重大度付きの指摘とは混ぜず、レポート末尾の「整理候補」にまとめる。汎用的なバグ検出も厚くしたい場合は、組み込みの `/code-review` を併用するようユーザーに案内する
 
 各エージェントには次を渡す:
@@ -70,6 +68,7 @@ Makefile や package.json に lint / 型チェックのターゲットがあれ�
 - 変更の目的（PR のタイトル・本文、`/dev` から呼ばれた場合は Issue の要件と受け入れ条件）
 - 静的解析の結果のうち、そのファイルに関係するもの。「静的解析は実施済み（または実行不可）なので再実行しない」と明記する
 - 既存コード監査モードの場合は、差分ではなくファイル全体が対象であること（エージェント定義の「変更されていないコードは報告しない」を適用しない）
+- この段階の役割は網羅であり、確信が持てない指摘や重大度の低い指摘も確信度を付けてすべて返すこと（絞り込みはステップ 5 で行う）
 - 出力はエージェント定義にある統一フォーマット（`[重大度] path:line — 問題 → 修正案 (確信度)`）で返すこと
 
 自分でも、エージェントの担当にない横断的な観点を確認する:
@@ -81,12 +80,13 @@ Makefile や package.json に lint / 型チェックのターゲットがあれ�
 
 ## 5. 裏取りと統合
 
-エージェントの指摘には誤検知が混じる。報告する前に、次の処理をする。
+エージェントは網羅を優先して指摘を返すので、誤検知や重大度の過大評価が混じる。絞り込みはここで行う。
 
 1. **重複の統合**: 同じ箇所・同じ原因の指摘は 1 件にまとめ、重い方の重大度を採用する
 2. **CRITICAL / HIGH の裏取り**: 指摘箇所と、その前後・呼び出し元を実際に読み、問題が本当に成立するか確かめる。例えば「SQL インジェクション」なら、入力がどこから来て、途中でバインドやバリデーションされていないかを追う。成立しなければ捨て、条件付きで成立するなら重大度を下げて条件を書く
 3. **規約との照合**: 「規約違反」とされたものは、`.claude/rules/` に実際にその規約があるかを確認する。規約にない好みの問題は MEDIUM 以下に下げる
-4. 確信度 medium の指摘は、MEDIUM として「要確認」の印を付けて残す
+4. 確信度 low の指摘は、指摘箇所を読んで成立するかを確かめる。成立すれば確信度を上げて残し、確かめられなければ捨てる
+5. 裏取りしていない確信度 medium の MEDIUM は、「要確認」の印を付けて残す
 
 ## 6. レポート
 

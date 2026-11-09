@@ -1,8 +1,9 @@
 ---
 name: test-runner
-description: 変更に関係するテストを実行し、失敗の原因分析と修正案を返す。/dev の実装完了後や /rv の実行時に使う。
+description: 変更に関係するテストを実行し、失敗の原因分析と修正案を返す。テストの実行と失敗の切り分けを任せたいとユーザーが指示したときに使う。
 tools: Read, Grep, Glob, Bash
 model: sonnet
+effort: medium
 maxTurns: 15
 ---
 

@@ -21,6 +21,11 @@ DEPRECATED_SKILLS=(
   review-pr python-review rust-review security-review # -> rv
   init                                              # -> setup
 )
+# 統合により廃止した agents
+DEPRECATED_AGENTS=(
+  clean-arch-guard                                  # -> python-reviewer
+  migration-checker                                 # -> database-reviewer
+)
 
 for arg in "$@"; do
   case "$arg" in
@@ -81,7 +86,7 @@ for d in "$SRC"/skills/*/; do
   done
 done
 
-# 廃止済みスキルの片付け
+# 廃止済みスキル・agents の片付け
 deprecated=() pruned=()
 for name in "${DEPRECATED_SKILLS[@]}"; do
   dir="$CLAUDE_DIR/skills/$name"
@@ -91,6 +96,16 @@ for name in "${DEPRECATED_SKILLS[@]}"; do
     pruned+=("skills/$name")
   else
     deprecated+=("skills/$name")
+  fi
+done
+for name in "${DEPRECATED_AGENTS[@]}"; do
+  file="$CLAUDE_DIR/agents/$name.md"
+  [[ -f "$file" ]] || continue
+  if [[ "$PRUNE" -eq 1 ]]; then
+    rm -f "$file"
+    pruned+=("agents/$name.md")
+  else
+    deprecated+=("agents/$name.md")
   fi
 done
 
@@ -172,11 +187,11 @@ if [[ ${#skipped[@]} -gt 0 ]]; then
   echo "  ※ 上書きするには --force を付けて再実行してください"
 fi
 if [[ ${#pruned[@]} -gt 0 ]]; then
-  echo "  廃止済みスキルを削除: ${#pruned[@]} 件"
+  echo "  廃止済みのスキル・agent を削除: ${#pruned[@]} 件"
   for f in "${pruned[@]}"; do echo "    - $f"; done
 fi
 if [[ ${#deprecated[@]} -gt 0 ]]; then
-  echo "  廃止済みスキルが残っています (/dev, /rv, /setup に統合済み): ${#deprecated[@]} 件"
+  echo "  廃止済みのスキル・agent が残っています (統合済み): ${#deprecated[@]} 件"
   for f in "${deprecated[@]}"; do echo "    - $f"; done
   echo "  ※ 削除するには --prune を付けて再実行してください"
 fi

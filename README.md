@@ -16,7 +16,7 @@ yuya-claude-code/            # このリポジトリ
 ├── my-claude-code/          # 配布物本体 (プラグインとしても機能)
 │   ├── .claude-plugin/
 │   │   └── plugin.json      # プラグインマニフェスト
-│   ├── agents/              # 専門エージェント (11種)
+│   ├── agents/              # 専門エージェント (9種)
 │   ├── skills/              # ワークフロー (12種)
 │   ├── hooks/               # 自動フォーマット (hooks.json + format-file.sh)
 │   ├── rules/               # 常時適用ガイドライン (9種)
@@ -51,7 +51,7 @@ curl -fsSL https://raw.githubusercontent.com/yuya-take/yuya-claude-code/main/ins
 
 > - **既存ファイルは上書きしません**（内容が異なるファイルはスキップして一覧表示）
 > - 上書きしたい場合は末尾に `| bash -s -- --force` を付けて実行
-> - 旧バージョンの廃止スキル（`dev-wt`, `code-review` など）は `| bash -s -- --prune` で削除（`--force` にも含まれる）
+> - 旧バージョンの廃止スキル・agent（`dev-wt`, `code-review`, `clean-arch-guard` など）は `| bash -s -- --prune` で削除（`--force` にも含まれる）
 > - **`settings.json`** は permissions.allow の和集合 + hook の追記のみで、既存の設定は消しません
 > - 更新時も同じコマンドを再実行するだけで追従できます
 
@@ -92,23 +92,21 @@ rules と settings はプラグインの仕組みでは自動ロードされな�
 
 ## 主要な設定
 
-### Agents (11 種)
+### Agents (9 種)
 
-レビュー系は `/rv` が変更内容に応じて自動で振り分けます。重要な判断を伴う agent は `opus`、機械的なチェック（`clean-arch-guard`, `migration-checker`, `test-runner`）は `sonnet` で動きます。
+レビュー系は `/rv` が変更内容に応じて自動で振り分けます。レビュー系は `opus`、`test-runner` は `sonnet` で動きます。各 reviewer は確信度付きで指摘を網羅的に返し、絞り込みは `/rv` がまとめて行います（Opus 4.7 以降は「重要なものだけ報告」と指示すると見落としが増えるため）。
 
 | Agent | 用途 |
 |-------|------|
-| `code-reviewer` | Clean Architecture 準拠・命名規則・型安全性チェック |
-| `python-reviewer` | Python コード品質レビュー |
+| `code-reviewer` | 正しさ・変更スコープ・規約の横断レビュー（他に該当がない変更のフォールバック） |
+| `python-reviewer` | Python コード品質・Clean Architecture のレイヤー違反 |
 | `rust-reviewer` | Rust コード品質レビュー |
 | `frontend-reviewer` | TypeScript / React コード品質レビュー |
 | `security-reviewer` | セキュリティ脆弱性チェック |
-| `database-reviewer` | DB スキーマ・クエリレビュー |
+| `database-reviewer` | DB スキーマ・クエリ・マイグレーションの内容と反映漏れ |
 | `api-spec-reviewer` | API 仕様レビュー |
-| `clean-arch-guard` | Clean Architecture 違反検出 |
-| `migration-checker` | マイグレーション安全性チェック |
-| `refactor-cleaner` | リファクタリング支援 |
-| `test-runner` | テスト実行・結果分析 |
+| `refactor-cleaner` | デッドコード・重複の検出 |
+| `test-runner` | テスト実行・失敗分析（指示したときだけ使う） |
 
 ### Skills (12 種)
 

@@ -105,4 +105,4 @@ description: 説明
 - 実プロジェクトで動作確認済みのものを優先
 - スキル名は Claude Code の組み込みコマンド（`/init`, `/review`, `/code-review`, `/security-review` など）と被らせない
 - レビュー系 agent を追加する場合は、`rules/agents.md` の統一出力フォーマットに従い、`/rv` の振り分け表（`skills/rv/SKILL.md`）にも追加する
-- スキルを廃止・改名した場合は、`install.sh` の `DEPRECATED_SKILLS` に旧名を追加する（`--prune` で利用側から片付けられるように）
+- スキルや agent を廃止・改名した場合は、`install.sh` の `DEPRECATED_SKILLS` / `DEPRECATED_AGENTS` に旧名を追加する（`--prune` で利用側から片付けられるように）

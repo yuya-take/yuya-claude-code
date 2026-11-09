@@ -1,6 +1,6 @@
 {
   "name": "my-claude-code",
-  "description": "GitHub 向けの実戦用セット: レビュー系 agents (11種) と開発ワークフロー skills (12種)、自動フォーマット hook",
+  "description": "GitHub 向けの実戦用セット: レビュー系 agents (9種) と開発ワークフロー skills (12種)、自動フォーマット hook",
   "author": {
     "name": "yuya-take"
   },

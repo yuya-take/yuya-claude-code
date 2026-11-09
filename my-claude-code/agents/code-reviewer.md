@@ -34,7 +34,7 @@ maxTurns: 20
 
 ### プロジェクト規約（MEDIUM）
 - 命名規則: `.claude/rules/naming-conventions.md`（配列は `_list`、Boolean は `is_`、View モデルは `*View`、Repository 実装は `*RepositoryImpl`、DTO 変換は `to_*` / `from_*`）
-- レイヤー依存方向: `.claude/rules/clean-architecture.md`（Adapter → Domain ← App ← Presentation）。Python の import 解析の詳細は clean-arch-guard が担当する
+- レイヤー依存方向: `.claude/rules/clean-architecture.md`（Adapter → Domain ← App ← Presentation）。Python の import 解析の詳細は python-reviewer が担当する
 - マジックナンバーは名前付き定数にする
 - 既存の同種コードとパターンが揃っているか（新しいやり方を持ち込むなら理由があるか）
 
@@ -44,16 +44,18 @@ maxTurns: 20
 
 ## 報告ルール
 
-- 確信度がおおむね 80% 以上の問題だけを報告する。好みのスタイル差は規約違反でない限り報告しない
+この段階の役割は網羅で、絞り込みではない。見つけた問題は、確信が持てないものや重大度が低いと思うものも含めてすべて報告し、それぞれに確信度と重大度を付ける。裏取りと絞り込みは /rv が別の段階で行う（あとで捨てられる指摘を出すほうが、バグを黙って落とすより良いため）。
+
+- 規約にも書かれていない純粋な好みのスタイル差だけは含めない
 - 同種の問題はまとめて 1 件にする（例: 「命名規則違反 5 箇所: a.py:10, b.py:22, ...」）
-- 重要度の目安: CRITICAL＝本番障害・データ破損・セキュリティ事故につながる / HIGH＝バグや保守上の明確な問題 / MEDIUM＝規約違反・改善提案
+- 重要度の目安: CRITICAL＝本番障害・データ破損・セキュリティ事故につながる / HIGH＝バグや保守上の明確な問題 / MEDIUM＝規約違反・改善提案・軽微な問題
 
 ## 出力フォーマット
 
 指摘を 1 行ずつ、この形式で出力する（/rv が他のレビュアーの結果とマージするため形式を崩さない）:
 
 ```
-- [CRITICAL|HIGH|MEDIUM] path/to/file.py:42 — 問題の説明 → 修正案 (確信度: high|medium)
+- [CRITICAL|HIGH|MEDIUM] path/to/file.py:42 — 問題の説明 → 修正案 (確信度: high|medium|low)
 ```
 
 指摘が無ければ `指摘なし` とだけ出力する。前置きやサマリー表は不要。
