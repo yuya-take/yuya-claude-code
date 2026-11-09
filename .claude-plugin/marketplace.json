@@ -20,13 +20,7 @@
     {
       "name": "dev-flow",
       "source": "./packs/dev-flow",
-      "description": "開発フロー: /dev（Issue から Worktree で設計・実装・セルフレビュー）、/pr、/sync",
-      "category": "workflow"
-    },
-    {
-      "name": "issue",
-      "source": "./packs/issue",
-      "description": "Issue 運用: /issue-create、/issue-refine、/slack-issue",
+      "description": "開発フロー: /issue-create・/issue-refine（Issue の作成と詳細化）、/dev（Issue から Worktree で設計・実装・セルフレビュー）、/pr、/sync",
       "category": "workflow"
     },
     {

@@ -12,8 +12,7 @@
 |------|------|------|
 | `core` | `/setup`（展開とプロジェクトに合わせた調整）、`/explain`、Git ワークフローの rule、基本の permissions | — |
 | `review` | `/rv`（統合レビュー）、`/refactor-clean`、reviewer agent 一式、agents rule | core |
-| `dev-flow` | `/dev`（Issue から設計・実装・セルフレビュー）、`/pr`、`/sync` | core, review |
-| `issue` | `/issue-create`、`/issue-refine`、`/slack-issue` | core |
+| `dev-flow` | `/issue-create`・`/issue-refine`（Issue の作成と詳細化）、`/dev`（Issue から設計・実装・セルフレビュー）、`/pr`、`/sync` | core, review |
 | `python` | Python / 命名 / Clean Architecture / DB の rules、ruff の自動フォーマット、uv・pytest の permissions | core |
 | `frontend` | TypeScript / React / Orval の rules、biome の自動フォーマット、npm の permissions | core |
 | `rust` | Rust の rules、cargo の permissions | core |
@@ -47,7 +46,7 @@ curl -fsSL https://raw.githubusercontent.com/yuya-take/yuya-claude-code/main/ins
 
 ```bash
 # 入れる pack を指定する（依存する pack は自動で追加）
-curl -fsSL .../install.sh | bash -s -- --packs dev-flow,python,issue
+curl -fsSL .../install.sh | bash -s -- --packs dev-flow,python,extras
 
 # 全部入れる
 curl -fsSL .../install.sh | bash -s -- --packs all
