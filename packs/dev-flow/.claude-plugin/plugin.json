@@ -1,0 +1,13 @@
+{
+  "name": "dev-flow",
+  "description": "開発フロー: /dev（Issue から Worktree で設計・実装・セルフレビュー）、/pr、/sync",
+  "author": {
+    "name": "yuya-take"
+  },
+  "homepage": "https://github.com/yuya-take/yuya-claude-code",
+  "repository": "https://github.com/yuya-take/yuya-claude-code",
+  "dependencies": [
+    "core",
+    "review"
+  ]
+}

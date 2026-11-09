@@ -1,6 +1,6 @@
 ---
 name: model-tune
-description: 新しい Claude モデルのリリースや Claude Code の仕様変更に合わせて、配布物（my-claude-code/ の skills・agents・rules・hooks・settings テンプレート）を公式ドキュメントと突き合わせて点検し、修正案を出して適用する。新モデルが出たとき、または Claude Code のスキル・agent・settings の仕様が変わったときに実行する。
+description: 新しい Claude モデルのリリースや Claude Code の仕様変更に合わせて、配布物（packs/ 配下の各 pack の skills・agents・rules・hooks・permissions）を公式ドキュメントと突き合わせて点検し、修正案を出して適用する。新モデルが出たとき、または Claude Code のスキル・agent・settings の仕様が変わったときに実行する。
 argument-hint: "[対象モデル名 or モデル ID（省略時は最新の Opus）]"
 disable-model-invocation: true
 ---
@@ -39,7 +39,7 @@ disable-model-invocation: true
 
 ## 3. 配布物を点検する
 
-対象は `my-claude-code/` 配下（skills・agents・rules・hooks・templates）、`install.sh`、`README.md`。このリポジトリの `.claude/skills/` と `.claude/agents/` の大半は `my-claude-code/` への symlink なので、リンク先を点検すれば足りる。
+対象は `packs/` 配下（各 pack の skills・agents・rules・hooks・`project-settings.json`・`.claude-plugin/plugin.json`）、`install.sh`、`README.md`。このリポジトリの `.claude/skills/` と `.claude/agents/` の大半は `packs/` への symlink なので、リンク先を点検すれば足りる。
 
 `prompt-audit.md` のパターン（圧力表現、API 機能で置き換わった足場、手順の過剰指定、旧モデル向けの名残、設定ファイルの陳腐化）と、ステップ 2 のモデルプロファイルを基準に見る。次の点は、配布物の性質上ずれやすいので毎回確認する。
 - reviewer agent と `/rv` の報告ルール: 絞り込みの指示が、見落としを増やす方向に働いていないか
@@ -60,9 +60,9 @@ disable-model-invocation: true
 
 `main` から作業ブランチを切って、承認された範囲を修正する。修正後に次を確認する。
 - `claude plugin validate .`
-- `bash -n install.sh`、`bash -n my-claude-code/hooks/format-file.sh`、`python3 -m json.tool my-claude-code/templates/settings.json`
-- 一時ディレクトリで `install.sh` を実行し、展開と settings のマージが通ること
-- スキルや agent を削除・改名した場合は、参照が残っていないことを grep で確認する（README、`plugin.json` と `marketplace.json` の種類数、`rules/agents.md`、`/rv` の振り分け表、`install.sh` の `DEPRECATED_SKILLS` / `DEPRECATED_AGENTS`、`.claude/` の symlink）
+- `bash -n install.sh` と `bash -n packs/*/hooks/*.sh`、`packs/*/project-settings.json` と `packs/*/.claude-plugin/plugin.json` が JSON として読めること
+- 一時ディレクトリで `install.sh`（既定の選択、`--packs all`、`--only rules,settings`）を実行し、展開と settings のマージが通ること
+- スキルや agent を削除・改名した場合は、参照が残っていないことを grep で確認する（README の pack 一覧、`marketplace.json`、`rules/agents.md`、`/rv` の振り分け表、`install.sh` の `DEPRECATED`、`.claude/` の symlink）
 
 ## 6. 記録して PR にする
 

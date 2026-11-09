@@ -1,0 +1,12 @@
+{
+  "name": "frontend",
+  "description": "フロントエンド: TypeScript / React / Orval の rules、biome の自動フォーマット",
+  "author": {
+    "name": "yuya-take"
+  },
+  "homepage": "https://github.com/yuya-take/yuya-claude-code",
+  "repository": "https://github.com/yuya-take/yuya-claude-code",
+  "dependencies": [
+    "core"
+  ]
+}

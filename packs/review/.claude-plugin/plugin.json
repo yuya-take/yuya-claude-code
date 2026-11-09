@@ -1,0 +1,12 @@
+{
+  "name": "review",
+  "description": "レビュー: /rv（変更内容に応じて reviewer を振り分ける統合レビュー）、/refactor-clean、reviewer agent 一式",
+  "author": {
+    "name": "yuya-take"
+  },
+  "homepage": "https://github.com/yuya-take/yuya-claude-code",
+  "repository": "https://github.com/yuya-take/yuya-claude-code",
+  "dependencies": [
+    "core"
+  ]
+}

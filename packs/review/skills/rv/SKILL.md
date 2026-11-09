@@ -1,7 +1,7 @@
 ---
 name: rv
 description: コードレビューの統合入口。ブランチ差分・未コミット変更・PR・既存フォルダのいずれも対象にでき、変更内容に応じて専門 reviewer エージェントを振り分けて並列実行し、重要指摘を裏取りしてから報告する。「レビューして」「PR 見て」「このフォルダ監査して」などで使用。
-argument-hint: "[#PR | PR URL | パス] [--base <branch>] [--staged] [--deep] [--fix]"
+argument-hint: "[#PR | PR URL | パス] [--base <branch>] [--staged] [--deep] [--inline] [--fix]"
 ---
 
 # /rv
@@ -10,7 +10,7 @@ argument-hint: "[#PR | PR URL | パス] [--base <branch>] [--staged] [--deep] [-
 
 チェック項目そのものは各 reviewer エージェントが持っている（定義ファイルは `${CLAUDE_SKILL_DIR}/../../agents/`）。このスキルの役割は「何をレビューするか決める → 適切なエージェントに振り分ける → 結果を裏取り・統合する」こと。
 
-プラグインとして導入されている場合、エージェント名は `my-claude-code:python-reviewer` のように名前空間付きになる。Agent ツールの `subagent_type` には、利用可能なエージェント一覧に出ている名前をそのまま使う。
+プラグインとして導入されている場合、エージェント名は `review:python-reviewer` のように名前空間付きになる。Agent ツールの `subagent_type` には、利用可能なエージェント一覧に出ている名前をそのまま使う。
 
 ## 1. 対象の決定
 
@@ -59,6 +59,7 @@ Makefile や package.json に lint / 型チェックのターゲットがあれ�
 
 - **小（変更 ~300 行以内かつ該当エージェント 2 つ以下）**: サブエージェントを使わず、自分で該当エージェントの定義ファイル（`${CLAUDE_SKILL_DIR}/../../agents/<name>.md`）を読み、そのチェック観点で直接レビューする
 - **中〜大**: 該当エージェントを Agent ツールで並列起動する。同じエージェントをファイル単位やディレクトリ単位で複数に分けない（起動ごとに文脈の読み直しが発生し、結果の統合も重くなるため）
+- **`--inline`**: 規模に関係なく、サブエージェントを使わずに小と同じ方法でレビューする（`/dev` のセルフレビュー用）
 - **`--deep`**: 規模に関係なく該当エージェントをすべて並列起動し、`security-reviewer`・`code-reviewer`・`refactor-cleaner` を常に加える。`refactor-cleaner` の結果（SAFE / CAREFUL / RISKY）は重大度付きの指摘とは混ぜず、レポート末尾の「整理候補」にまとめる。汎用的なバグ検出も厚くしたい場合は、組み込みの `/code-review` を併用するようユーザーに案内する
 
 各エージェントには次を渡す:

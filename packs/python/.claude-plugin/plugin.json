@@ -1,0 +1,12 @@
+{
+  "name": "python",
+  "description": "Python バックエンド: Python / 命名 / Clean Architecture / DB の rules、ruff の自動フォーマット",
+  "author": {
+    "name": "yuya-take"
+  },
+  "homepage": "https://github.com/yuya-take/yuya-claude-code",
+  "repository": "https://github.com/yuya-take/yuya-claude-code",
+  "dependencies": [
+    "core"
+  ]
+}

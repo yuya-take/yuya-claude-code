@@ -14,16 +14,19 @@ git switch -c feat/your-feature-name
 
 ### 2. ファイルを追加・編集
 
-適切なディレクトリに配置してください：
+配布物は `packs/<pack>/` に置きます。1 つの pack が 1 つのプラグインになり、install.sh も同じディレクトリから展開します。
 
-- `my-claude-code/agents/` — サブエージェント定義
-- `my-claude-code/skills/` — ワークフロー定義 (`skills/<name>/SKILL.md`)
-- `my-claude-code/hooks/` — フック処理スクリプト (`hooks.json` に登録)
-- `my-claude-code/rules/` — 常時適用ガイドライン (`/my-claude-code:setup` で展開)
-- `my-claude-code/templates/` — `.claude/` に展開するテンプレート (settings.json 等)
-- `mcp/` — MCP サーバープラグイン ([mcp/README.md](mcp/README.md) 参照)
+- `packs/<pack>/skills/<name>/SKILL.md` — スキル
+- `packs/<pack>/agents/` — サブエージェント定義
+- `packs/<pack>/rules/` — 利用先の `.claude/rules/` に展開する rule（プラグイン方式では `/setup` が展開する）
+- `packs/<pack>/hooks/` — `hooks.json` とフックスクリプト。コマンドは `${CLAUDE_PLUGIN_ROOT}/hooks/...` で書く（install.sh が `.claude/hooks/` を指す形に書き換えて登録する）
+- `packs/<pack>/project-settings.json` — 利用先の `.claude/settings.json` にマージする permissions など。プラグイン直下の `settings.json` は別の意味（プラグインの既定設定）を持つので、この名前にしている
+- `packs/<pack>/.claude-plugin/plugin.json` — pack の説明と、依存する pack（`dependencies`）
+- `mcp/` — MCP サーバープラグイン（[mcp/README.md](mcp/README.md) 参照）
 
-新しいプラグインを追加する場合は、ルートの `.claude-plugin/marketplace.json` にエントリを追加してください。
+どの pack に置くかは、「その pack だけ入れた利用者に必要か」で決めます。スキルが別の pack のファイルを参照する場合は、依存（`dependencies`）を宣言してください。
+
+新しい pack を作る場合は、`packs/<pack>/.claude-plugin/plugin.json` を作り、ルートの `.claude-plugin/marketplace.json` にエントリを追加し（並び順が install.sh の表示順になる）、`bundles/all` の `dependencies` と README の pack 一覧にも追加してください。
 
 ### 3. 検証・テスト
 
@@ -31,14 +34,20 @@ git switch -c feat/your-feature-name
 claude plugin validate .
 ```
 
-ローカルマーケットプレイスとして追加して動作確認：
+install.sh は、一時ディレクトリで実行して確認します（このリポジトリのクローンから実行すると、ローカルの `packs/` を使います）:
+
+```bash
+mkdir -p /tmp/try && cd /tmp/try && touch pyproject.toml
+bash /path/to/yuya-claude-code/install.sh --list
+bash /path/to/yuya-claude-code/install.sh
+```
+
+プラグインとしての動作は、ローカルの marketplace として追加して確認します:
 
 ```shell
 /plugin marketplace add ./path/to/yuya-claude-code
-/plugin install my-claude-code@yuya-claude-code
+/plugin install dev-flow@yuya-claude-code
 ```
-
-rules を変更した場合は、実際のプロジェクトの `.claude/` にコピーして確認してください。
 
 ### 4. PR を作成
 
@@ -67,7 +76,7 @@ model: sonnet
 
 ### Skills
 
-`my-claude-code/skills/<skill-name>/SKILL.md` に配置：
+`packs/<pack>/skills/<skill-name>/SKILL.md` に配置：
 
 ```markdown
 ---
@@ -94,8 +103,8 @@ description: 説明
 
 | 種類 | 置いているもの |
 |---|---|
-| skills | `dev`, `rv`, `pr`, `sync`（`my-claude-code/skills/` への symlink） |
-| agents | `code-reviewer`, `security-reviewer`（`my-claude-code/agents/` への symlink） |
+| skills | `dev`, `pr`, `sync`（`packs/dev-flow/skills/` への symlink）、`rv`（`packs/review/skills/` への symlink） |
+| agents | `code-reviewer`, `security-reviewer`（`packs/review/agents/` への symlink） |
 | このリポジトリ専用 | `model-tune` — 新しいモデルや Claude Code の仕様変更に合わせて配布物を点検・修正する |
 
 新しい Claude モデルが出たときや、Claude Code のスキル・agent・settings の仕様が変わったときは `/model-tune` を実行する。点検の記録は `.claude/skills/model-tune/history.md` に残る。
@@ -104,8 +113,8 @@ description: 説明
 
 ## 変更時の作業
 
-- Agents / Skills / Hooks / Rules を変更した場合: コミットするだけで配布される（バージョンは git コミット SHA ベース）
-- Rules の変更は利用側で `/my-claude-code:setup` を再実行すると反映される
+- コミットするだけで配布される（プラグインのバージョンは git コミット SHA ベース）
+- install.sh の利用者は同じコマンドの再実行で、プラグインの利用者は `/plugin update` と `/core:setup` の再実行で追従する
 
 ---
 
@@ -118,5 +127,5 @@ description: 説明
 - API キーなどの機密情報を含めない
 - 実プロジェクトで動作確認済みのものを優先
 - スキル名は Claude Code の組み込みコマンド（`/init`, `/review`, `/code-review`, `/security-review` など）と被らせない
-- レビュー系 agent を追加する場合は、`rules/agents.md` の統一出力フォーマットに従い、`/rv` の振り分け表（`skills/rv/SKILL.md`）にも追加する
-- スキルや agent を廃止・改名した場合は、`install.sh` の `DEPRECATED_SKILLS` / `DEPRECATED_AGENTS` に旧名を追加する（`--prune` で利用側から片付けられるように）
+- レビュー系 agent は `review` pack に置く（`/rv` と `/dev` が定義ファイルを同じ pack から読むため）。`packs/review/rules/agents.md` の統一出力フォーマットに従い、`/rv` の振り分け表にも追加する
+- スキル・agent・フックを廃止・改名した場合は、`install.sh` の `DEPRECATED` に旧パスを追加する（導入記録の無い旧バージョンの利用者が `--prune` で片付けられるように）。導入記録のある利用者には、記録から自動で検出される

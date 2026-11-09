@@ -1,0 +1,32 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "allow": [
+      "Bash(make lint:*)",
+      "Bash(make test:*)",
+      "Bash(gh auth status:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(ls:*)",
+      "Bash(wc:*)",
+      "WebSearch",
+      "mcp__ide__getDiagnostics"
+    ],
+    "ask": [
+      "Bash(git checkout -- *)",
+      "Bash(git checkout .)",
+      "Bash(git restore *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
+    ]
+  }
+}
