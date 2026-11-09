@@ -24,7 +24,7 @@ paths:
 
 ## Biome (Linter/Formatter)
 
-- 2024年12月にESLint+PrettierからBiomeへ移行済み
+- ESLint / Prettier は使わない（Biome に統一している）
 - Root `biome.json`: monorepo全体の共通設定
 - 各サブプロジェクト `biome.json`: ルート設定を継承（`extends: "//"`）
 - VS Code: Biome拡張をインストール（`.vscode/extensions.json`で推奨）

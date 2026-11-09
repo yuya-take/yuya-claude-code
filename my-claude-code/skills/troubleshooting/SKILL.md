@@ -6,6 +6,8 @@ user-invocable: false
 
 # Common Troubleshooting
 
+以下のコマンドはプロジェクトの例（`/setup` で実際のものに置き換える）。データを消すコマンド（ボリューム削除、downgrade など）は、実行前にユーザーに確認する。
+
 ## Service Won't Start
 
 ```bash
@@ -63,8 +65,8 @@ make migration MSG="description"
 
 ```bash
 # Check specific port usage（例: ポート番号はプロジェクトに合わせて変更）
-lsof -i :8000  # 例: バックエンドサービス
-netstat -tulpn | grep :3000  # 例: フロントエンド / 監視ダッシュボード
+lsof -nP -iTCP:8000 -sTCP:LISTEN  # 例: バックエンドサービス
+lsof -nP -iTCP:3000 -sTCP:LISTEN  # 例: フロントエンド（Linux なら ss -ltnp | grep :3000 でも可）
 
 # Stop conflicting services or use different ports
 ```

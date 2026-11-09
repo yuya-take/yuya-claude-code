@@ -1,4 +1,8 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(make lint:*)",
@@ -10,27 +14,48 @@
       "Bash(npm run build:*)",
       "Bash(npm run dev:*)",
       "Bash(npm test:*)",
+      "Bash(cargo check:*)",
+      "Bash(cargo clippy:*)",
+      "Bash(cargo test:*)",
       "Bash(gh auth status:*)",
       "Bash(gh pr create:*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr edit:*)",
       "Bash(gh pr list:*)",
       "Bash(gh pr diff:*)",
+      "Bash(gh pr checks:*)",
       "Bash(gh pr comment:*)",
       "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue edit:*)",
       "Bash(gh label list:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
+      "Bash(git show:*)",
       "Bash(git branch:*)",
-      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git fetch:*)",
       "Bash(git pull:*)",
+      "Bash(git merge-base:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git rev-list:*)",
+      "Bash(git worktree list:*)",
+      "Bash(git worktree add:*)",
       "Bash(ls:*)",
       "Bash(wc:*)",
       "WebSearch",
       "mcp__ide__getDiagnostics"
+    ],
+    "ask": [
+      "Bash(git checkout -- *)",
+      "Bash(git checkout .)",
+      "Bash(git restore *)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean *)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)"
     ]
   }
 }

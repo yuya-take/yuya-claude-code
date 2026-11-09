@@ -30,10 +30,10 @@ Python services follow Clean Architecture with strict dependency inversion:
 
 ## Critical Dependency Rules
 
-- **Dependency Direction**: Adapter → Domain ← App ← Presentation (always inward)
-- **Domain Layer**: NEVER depends on external frameworks or adapters
-- **App Layer**: NEVER accesses database directly (must use domain repository interfaces)
-- **Repository Pattern**: Domain defines abstract interfaces, Adapter provides implementations
+- **Dependency Direction**: Adapter → Domain ← App ← Presentation（依存は常に内側へ向ける）
+- **Domain Layer**: 外部フレームワークや adapter に依存しない（ドメインを差し替え可能に保つため）
+- **App Layer**: DB に直接アクセスしない。domain の repository インターフェース経由で扱う
+- **Repository Pattern**: Domain が抽象インターフェースを定義し、Adapter が実装する
 
 ## Application層（usecase/）の責務制限
 

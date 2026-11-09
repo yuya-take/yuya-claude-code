@@ -16,9 +16,13 @@ GitHub 前提。リモート操作（PR / Issue / ラベル）は `gh` CLI を�
 feat/123-short-desc      # 機能追加（Issue番号付き）
 fix/456-short-desc       # バグ修正
 refactor/short-desc      # リファクタリング
+perf/short-desc          # パフォーマンス改善
+test/short-desc          # テストのみの変更
 chore/short-desc         # 設定・CI・依存更新等
 docs/short-desc          # ドキュメント
 ```
+
+Issue がある場合は番号を入れる。英語の kebab-case、50 文字以内。`/dev` はこの規則でブランチを作る。
 
 ## コミットメッセージ
 
@@ -52,7 +56,7 @@ docs: READMEにClaude Code開発ガイドを追加
 
 - 日本語で記述（プロジェクト慣習）
 - 1行目は簡潔に（70文字目安）
-- `Co-Authored-By` は不要（settings.jsonで無効化済み）
+- `Co-Authored-By` は付けない（`.claude/settings.json` の `attribution` で無効化している）
 
 ## コミット分割
 
@@ -63,26 +67,7 @@ docs: READMEにClaude Code開発ガイドを追加
 
 ## Pull Request
 
-PR ワークフローは `/pr` スキルで実行する。手順:
-
-1. ブランチ確認・作成（developから）
-2. 差分確認（`git status` + `git diff`）
-3. コミット分割
-4. `git push -u origin ブランチ名`
-5. `gh pr create` / `gh pr edit`
-
-### PR Description
-
-```markdown
-## 概要
-変更内容の要約（1-3行）
-
-## 変更内容
-- 具体的な変更点をリスト化
-
-## テスト
-- テスト方法・確認事項
-```
+PR の作成・更新は `/pr` スキルで行う（手順と description の形式はスキル側に定義している）。
 
 ## 禁止事項
 

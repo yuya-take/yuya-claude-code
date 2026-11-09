@@ -1,7 +1,8 @@
 ---
 name: slack-issue
 description: Slackスレッドの内容からIssueを作成し、スレッドにリンクを投稿する。
-argument-hint: [SlackスレッドURL]
+argument-hint: "[SlackスレッドURL]"
+disable-model-invocation: true
 ---
 
 # Slack Issue
@@ -16,6 +17,7 @@ URLフォーマット: `https://{workspace}.slack.com/archives/{channel_id}/p{ti
 
 - `channel_id`: `/archives/` の直後のセグメント（例: `C0AQRPA3YTS`）
 - `message_ts`: `p` の後の数値を `{先頭10桁}.{残り}` に変換（例: `p1775022933816269` → `1775022933.816269`）
+- URL に `?thread_ts=...` が付いている場合（スレッド内の返信へのリンク）は、そちらが親メッセージの ts なので、スレッドの読み取りと投稿にはそれを使う
 
 引数がない場合は「SlackスレッドのURLを指定してください」と案内して終了する。
 
@@ -23,7 +25,7 @@ URLフォーマット: `https://{workspace}.slack.com/archives/{channel_id}/p{ti
 
 ### Step 1: Slackスレッド読み取り
 
-`slack_read_thread` でスレッドの内容を取得する。
+Slack の MCP ツール（スレッド読み取り用。例: `slack_read_thread`）でスレッドの内容を取得する。Slack のツールが使えない場合は、Slack MCP サーバー（または claude.ai の Slack コネクタ）の接続を案内して終了する。
 
 ### Step 2: コードベース調査
 
@@ -89,7 +91,7 @@ Slackの投稿内容から対象のサービス・機能を特定し、**コー�
 この内容でIssueを作成しますか？修正したい箇所があれば教えてください。
 ```
 
-ユーザーの承認を待つ。修正要望があれば反映して再提示する。
+ドラフトには「作成後、元のスレッドに Issue のリンクを投稿する」ことも明記し、まとめて承認を得る。修正要望があれば反映して再提示する。
 
 ### Step 5: Issue作成
 
@@ -107,7 +109,7 @@ EOF
 
 ### Step 6: Slackスレッドに投稿
 
-`slack_send_message` で元のスレッドにIssueリンクを投稿する:
+Slack の MCP ツール（メッセージ送信用。例: `slack_send_message`）で、元のスレッドに Issue のリンクを返信する:
 
 - `channel_id`: Step 1 で使用したチャンネルID
 - `thread_ts`: Step 1 で使用したメッセージタイムスタンプ
@@ -119,7 +121,7 @@ EOF
 
 ## 注意事項
 
-- ユーザーの承認なしにIssueを作成しない
+- ユーザーの承認なしに Issue の作成・Slack への投稿をしない
 - Slackの投稿内容を忠実に反映する（勝手に要件を追加しない）
 - スクリーンショット等の添付ファイルがある場合はその旨を本文に記載する
 - ラベルは `gh label list` で存在を確認してから使う
