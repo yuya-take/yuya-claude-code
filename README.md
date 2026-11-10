@@ -115,7 +115,7 @@ rules と permissions はプラグインの仕組みでは配布されないた�
 /dev #123 --branch         # カレントリポジトリでブランチを切って開発
 /dev "CSV出力を追加"        # Issue なしでも可
 /dev #123 --base feat/epic # 分岐元を指定（既定は develop、無ければデフォルトブランチ）
-/dev #123 --quick          # Plan モードを省略（小さな修正向け）
+/dev #123 --plan           # 実装の前に計画の承認を待つ（大きな変更向け）
 ```
 
 #### `/orchestrate`（dev-flow）
