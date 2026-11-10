@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "description": "フロントエンド: TypeScript / React / Orval の rules、biome の自動フォーマット",
+  "description": "フロントエンド: /unslop-design（画面の AI っぽいデザインを点検し、UI/UX から考え直した画面に作り替える）、TypeScript / React / Orval の rules、biome の自動フォーマット",
   "author": {
     "name": "yuya-take"
   },

@@ -14,7 +14,7 @@
 | `review` | `/rv`（統合レビュー）、`/refactor-clean`、reviewer agent 一式、agents rule | core |
 | `dev-flow` | `/issue-create`・`/issue-refine`（Issue の作成と詳細化）、`/dev`（Issue から設計・実装・セルフレビュー）、`/orchestrate`（複数 Issue の並行実装）、`/pr`、`/sync` | core, review |
 | `python` | Python / 命名 / Clean Architecture / DB の rules、`/troubleshooting`（サービス起動・DB・マイグレーションの対処）、ruff の自動フォーマット、uv・pytest の permissions | core |
-| `frontend` | TypeScript / React / Orval の rules、biome の自動フォーマット、npm の permissions | core |
+| `frontend` | `/unslop-design`（画面の AI っぽいデザインを点検し、UI/UX から考え直した画面に作り替える）、TypeScript / React / Orval の rules、biome の自動フォーマット、npm の permissions | core |
 | `rust` | Rust の rules、cargo の permissions | core |
 
 依存する pack は自動で一緒に入ります。reviewer agent は言語に関係なくすべて `review` に入っています。`/rv` は変更されたファイルの種類に合う reviewer だけを起動するので、使わない言語の reviewer が動くことはありません。
@@ -153,6 +153,26 @@ rules と permissions はプラグインの仕組みでは配布されないた�
 ```
 
 変更ファイルを分類して、必要な reviewer だけを並列で起動します。小さな差分ではサブエージェントを使わず、1 パスでレビューします。各 reviewer は確信度付きで指摘を網羅的に返し、`/rv` が CRITICAL/HIGH をコードで裏取りしてから報告します（Opus 4.7 以降のモデルは「重要なものだけ報告」と指示すると見落としが増えるため、絞り込みを別の段階に分けています）。
+
+#### `/unslop-design`（frontend）
+
+```text
+/unslop-design                        # 全画面を点検して一覧を出し、作り替える画面を選ぶ
+/unslop-design app/dashboard/         # 指定した画面を作り替える
+/unslop-design /settings/billing      # ルートで指定してもよい
+/unslop-design --changed              # 今のブランチで変更した行だけ（/dev で作った画面の仕上げ）
+/unslop-design app/page.tsx --audit   # 点検と設計方針だけ（編集しない）
+```
+
+画面から、生成 AI が作ったように見えるデザインを見つけ、利用者の目的と操作から考え直した画面に作り替えます。対象は、意味の無いグラデーションや光彩、絵文字のアイコン、煽り文句、飾りの統計カード、どの画面にも同じテンプレートを当てはめた構成などです。
+
+- **目的から構成を決める:** 画面ごとに、利用者・目的・大事な情報・操作の頻度・前後の画面をまとめます。そこから、情報の並びと主な操作の位置を決め直します。ブラウザを操作できるツール（Playwright の MCP など）があれば、主なタスクを実際に操作して、迷う箇所を確かめます。
+- **見た目は基盤に揃える:** テーマ（`@theme` / `:root` の色トークン、角丸、書体）と `components/ui/` を先に読み、直書きの値や独自の部品をそこに寄せます。好みのスタイルに作り替えることはしません。基盤がほとんど無いプロジェクトでは、最小限のトークンの案から始めます。
+- **候補は機械的に、判断は文脈で:** 同梱の `scan.py` が、グラデーション、パレット色の直指定、スケール外の任意値、繰り返す動き、感嘆符や煽り語などの候補を行単位で拾います。直すかどうかは Claude が周りを見て決めます。
+- **編集の前に止まる:** 画面ごとに、指摘の一覧、今の配置と案を並べた配置図、見た目の方針を示し、承認を得てから作り替えます。ほとんど問題が無ければ、そう伝えて終えます。機能とデータは減らさず、API やデータ取得のロジックには触れません。
+- **日本語の UI 向け:** 感嘆符、挨拶の見出し、末尾の句点、語尾や表記の揺れ、和文の行間や斜体なども見ます。
+
+`scan.py` の実行には `python3` が必要です。
 
 Claude Code 組み込みの `/init`, `/review`, `/code-review`, `/security-review` とは名前が衝突しないようにしています。
 
