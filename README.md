@@ -12,7 +12,7 @@
 |------|------|------|
 | `core` | `/setup`（展開とプロジェクトに合わせた調整）、`/explain`、`/skill-create`（git 履歴からスキル生成）、Git ワークフローの rule、基本の permissions | — |
 | `review` | `/rv`（統合レビュー）、`/refactor-clean`、reviewer agent 一式、agents rule | core |
-| `dev-flow` | `/issue-create`・`/issue-refine`（Issue の作成と詳細化）、`/dev`（Issue から設計・実装・セルフレビュー）、`/pr`、`/sync` | core, review |
+| `dev-flow` | `/issue-create`・`/issue-refine`（Issue の作成と詳細化）、`/dev`（Issue から設計・実装・セルフレビュー）、`/orchestrate`（複数 Issue の並行実装）、`/pr`、`/sync` | core, review |
 | `python` | Python / 命名 / Clean Architecture / DB の rules、`/troubleshooting`（サービス起動・DB・マイグレーションの対処）、ruff の自動フォーマット、uv・pytest の permissions | core |
 | `frontend` | TypeScript / React / Orval の rules、biome の自動フォーマット、npm の permissions | core |
 | `rust` | Rust の rules、cargo の permissions | core |
@@ -117,6 +117,29 @@ rules と permissions はプラグインの仕組みでは配布されないた�
 /dev #123 --base feat/epic # 分岐元を指定（既定は develop、無ければデフォルトブランチ）
 /dev #123 --quick          # Plan モードを省略（小さな修正向け）
 ```
+
+#### `/orchestrate`（dev-flow）
+
+```text
+/orchestrate #121 #122 #123 #125            # 複数の Issue を並行して実装（同時実行は既定 3）
+/orchestrate #121 #122 --max 2 --base main
+/orchestrate --label ready                  # ラベルで選ぶ
+/orchestrate --milestone v1.2               # マイルストーンで選ぶ
+/orchestrate --parent #100                  # 親 Issue の直下のサブ Issue を選ぶ
+/orchestrate --resume                       # 閉じたオーケストレータを再開する
+```
+
+このセッションがオーケストレータになり、Issue ごとに裏で動く作業セッション（`claude --bg`）を起動して `/dev` を実行させます。
+
+- **投入計画:** 起動の前に Issue を読み、同じファイルを触るものや依存があるものは別の波に分けた計画を示して、承認を得ます。他の人が担当している Issue は保留にします。同時実行数より多い Issue は、空きができるたびに順に起動します。
+- **計画の承認:** 作業セッションが立てた実装計画は、Issue の範囲内で他の作業と衝突しなければオーケストレータが承認します。範囲外の変更や仕様の判断を含むものは、あなたに確認します。
+- **質問への回答:** 作業セッションからの質問には、オーケストレータが答えます。仕様の判断が要るものは、あなたに聞いてから返します。
+- **完了:** 各作業セッションは `/pr` で PR を作って報告します。オーケストレータが PR の一覧とマージ順をまとめます。マージはあなたが行います。
+- **GitHub への反映:** 投入計画の承認時に選べます。選ぶと、起動時に Issue の担当者を自分にし、作業中を表すラベル（`in progress` など、既にあるもの）を付けます。PR ができたらラベルを外します。
+
+進み具合は `.orchestrate/state.md` に記録されます（ディレクトリごと git の管理から外れます）。オーケストレータのセッションを閉じても、`/orchestrate --resume` で続きから再開できます。閉じている間に作業セッションが送れなかった連絡は、再開後に送り直されます。
+
+作業セッションは `claude agents`（agent view）で一覧でき、途中で中に入って操作できます。作業セッションに出る permission の確認には、オーケストレータは答えられません（別セッションからのメッセージは承認として扱われない仕様のため）。確認が出たら agent view で答えてください。
 
 #### `/rv`（review）
 
