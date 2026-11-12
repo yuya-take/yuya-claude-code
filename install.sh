@@ -311,9 +311,17 @@ if "settings" in kinds or "hooks" in kinds:
                     current.extend(missing)
                     settings_changes.append(f"permissions.{key} に {len(missing)} 件 ({name})")
             for key, value in frag.items():
-                if key not in ("permissions", "hooks") and key not in settings:
+                if key in ("permissions", "hooks"):
+                    continue
+                if key not in settings:
                     settings[key] = value
                     settings_changes.append(f"{key} を追加 ({name})")
+                elif isinstance(value, dict) and isinstance(settings[key], dict):
+                    # 既にあるキーは利用先の値を残し、配布物に後から足したサブキーだけを補う
+                    for sub, subvalue in value.items():
+                        if sub not in settings[key]:
+                            settings[key][sub] = subvalue
+                            settings_changes.append(f"{key}.{sub} を追加 ({name})")
 
     if "hooks" in kinds:
         # 削除したフックスクリプトの登録を外す
