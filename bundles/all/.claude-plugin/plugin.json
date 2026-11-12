@@ -6,6 +6,7 @@
   },
   "homepage": "https://github.com/yuya-take/yuya-claude-code",
   "repository": "https://github.com/yuya-take/yuya-claude-code",
+  "license": "MIT",
   "dependencies": [
     "core",
     "review",

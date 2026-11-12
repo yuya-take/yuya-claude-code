@@ -215,4 +215,10 @@ yuya-claude-code/
 
 ## 貢献
 
-[CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
+Issue や PR を歓迎します。手順は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
+
+---
+
+## ライセンス
+
+[MIT License](LICENSE)
