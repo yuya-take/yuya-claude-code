@@ -56,7 +56,7 @@ docs: READMEにClaude Code開発ガイドを追加
 
 - 日本語で記述（プロジェクト慣習）
 - 1行目は簡潔に（70文字目安）
-- `Co-Authored-By` は付けない（`.claude/settings.json` の `attribution` で無効化している）
+- `Co-Authored-By` の行と、Claude のセッションの URL（`Claude-Session:` の行、PR 本文のセッションへのリンク）は、コミットメッセージにも PR の本文にも書かない。`.claude/settings.json` の `attribution` でも止めているが、設定が無い環境でも書かない（セッションの URL はリポジトリの読者には開けず、公開リポジトリに残す必要が無いため）
 
 ## コミット分割
 
