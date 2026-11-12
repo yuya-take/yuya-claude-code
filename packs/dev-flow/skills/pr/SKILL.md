@@ -1,7 +1,6 @@
 ---
 name: pr
-description: 変更をコミットに分割してプッシュし、Pull Request を作成または更新する。
-disable-model-invocation: true
+description: 変更をコミットに分割してプッシュし、Pull Request を作成または更新する。ユーザーが PR の作成・更新を求めたとき、または他のスキルの手順で指示されたときに使う。
 argument-hint: "[--base <branch>] [--draft]"
 ---
 

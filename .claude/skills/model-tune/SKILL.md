@@ -68,4 +68,4 @@ disable-model-invocation: true
 
 `${CLAUDE_SKILL_DIR}/history.md` の先頭に、今回の記録を追加する。内容は、日付、対象モデル、Claude Code のバージョン（`claude --version`）、参照した主な公式ページ、モデルプロファイルの要点、反映した変更の要約。
 
-その後、`/pr` でコミットと PR の作成に進む。
+その後、Skill ツールで `pr` を実行し、コミットと PR の作成に進む。
