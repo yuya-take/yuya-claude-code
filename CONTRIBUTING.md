@@ -127,5 +127,6 @@ description: 説明
 - API キーなどの機密情報を含めない
 - 実プロジェクトで動作確認済みのものを優先
 - スキル名は Claude Code の組み込みコマンド（`/init`, `/review`, `/code-review`, `/security-review` など）と被らせない
+- `disable-model-invocation: true` は、ユーザーが自分で始めるスキルにだけ付ける。他のスキルや rule の手順でモデルに呼ばせるスキル（`/pr`、`/rv` など）には付けない（付けるとモデルが Skill ツールで呼べず、手順を手で再現することになる）
 - レビュー系 agent は `review` pack に置く（`/rv` と `/dev` が定義ファイルを同じ pack から読むため）。`packs/review/rules/agents.md` の統一出力フォーマットに従い、`/rv` の振り分け表にも追加する
 - スキル・agent・フックを廃止・改名した場合は、`install.sh` の `DEPRECATED` に旧パスを追加する（導入記録の無い旧バージョンの利用者が `--prune` で片付けられるように）。導入記録のある利用者には、記録から自動で検出される
