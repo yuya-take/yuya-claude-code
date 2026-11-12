@@ -6,9 +6,17 @@
 
 ## 貢献の流れ
 
-### 1. ブランチを作成
+不具合の報告や提案は Issue で、変更は PR で受け付けています。大きな変更は、先に Issue で相談してください。
+
+送られた変更は、このリポジトリと同じ [MIT License](LICENSE) で公開されます。
+
+### 1. フォークしてブランチを作成
+
+このリポジトリに直接 push できるのはメンテナだけです。GitHub でフォークし、フォーク側でブランチを切ってください。
 
 ```bash
+gh repo fork yuya-take/yuya-claude-code --clone
+cd yuya-claude-code
 git switch -c feat/your-feature-name
 ```
 
@@ -51,10 +59,13 @@ bash /path/to/yuya-claude-code/install.sh
 
 ### 4. PR を作成
 
+コミットメッセージは `<type>: <説明>`（例: `feat: 〇〇 スキルを追加`）。フォークに push し、このリポジトリの `main` に向けて PR を出します。
+
 ```bash
 git add .
 git commit -m "feat: 機能の説明"
 git push -u origin feat/your-feature-name
+gh pr create --repo yuya-take/yuya-claude-code --base main
 ```
 
 ---
