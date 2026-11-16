@@ -1,23 +1,23 @@
 # mcp/
 
-将来追加する MCP サーバー用のディレクトリ。
+MCP サーバーのプラグインを置くディレクトリです（今は空です）。
 
 ## 追加手順
 
-MCP サーバーは単体のプラグインとして配布する。
+MCP サーバーは、単体のプラグインとして配布します。
 
-1. `mcp/<server-name>/` を作成し、`.claude-plugin/plugin.json` と `.mcp.json`（または plugin.json 内の `mcpServers` フィールド）を置く
+1. `mcp/<server-name>/` を作り、`.claude-plugin/plugin.json` と `.mcp.json`（または plugin.json の `mcpServers` フィールド）を置きます。
 
    ```
    mcp/
    └── my-server/
        ├── .claude-plugin/
        │   └── plugin.json
-       ├── .mcp.json          # MCP サーバー定義
-       └── src/               # サーバー実装（必要なら）
+       ├── .mcp.json          # MCP サーバーの定義
+       └── src/               # サーバーの実装（必要なら）
    ```
 
-2. ルートの `.claude-plugin/marketplace.json` の `plugins` にエントリを追加する
+2. ルートの `.claude-plugin/marketplace.json` の `plugins` に、エントリを追加します。
 
    ```json
    {
@@ -27,8 +27,8 @@ MCP サーバーは単体のプラグインとして配布する。
    }
    ```
 
-3. サーバー起動コマンド内のパスは `${CLAUDE_PLUGIN_ROOT}` で参照する（プラグインはインストール時にキャッシュへコピーされるため、相対パスは使えない）
+3. サーバーの起動コマンドの中のパスは、`${CLAUDE_PLUGIN_ROOT}` で参照します。プラグインはインストール時にキャッシュへコピーされるため、相対パスは使えません。
 
-4. `claude plugin validate .` で検証してからコミットする
+4. `claude plugin validate .` で検証してからコミットします。
 
-既存の pack に同梱することもできるが、MCP サーバーは有効/無効を個別に切り替えたいことが多いので、原則 1 サーバー = 1 プラグインで分ける。
+既存の pack に同梱することもできます。ただ、MCP サーバーは有効・無効を個別に切り替えたいことが多いので、原則として 1 サーバー = 1 プラグインに分けます。

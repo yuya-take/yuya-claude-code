@@ -2,8 +2,6 @@
 
 このリポジトリは Claude Code のプラグインマーケットプレイスです。
 
----
-
 ## 貢献の流れ
 
 不具合の報告や提案は Issue で、変更は PR で受け付けています。大きな変更は、先に Issue で相談してください。
@@ -34,7 +32,7 @@ git switch -c feat/your-feature-name
 
 どの pack に置くかは、「その pack だけ入れた利用者に必要か」で決めます。スキルが別の pack のファイルを参照する場合は、依存（`dependencies`）を宣言してください。
 
-新しい pack を作る場合は、`packs/<pack>/.claude-plugin/plugin.json` を作り、ルートの `.claude-plugin/marketplace.json` にエントリを追加し（並び順が install.sh の表示順になる）、`bundles/all` の `dependencies` と README の pack 一覧にも追加してください。
+新しい pack を作る場合は、`packs/<pack>/.claude-plugin/plugin.json` を作り、ルートの `.claude-plugin/marketplace.json` にエントリを追加し（並び順が install.sh の表示順になる）、`bundles/all` の `dependencies` と README の pack の表にも追加してください。スキルを追加・改名・廃止した場合は、README のスキルの表も直してください。
 
 ### 3. 検証・テスト
 
@@ -67,8 +65,6 @@ git commit -m "feat: 機能の説明"
 git push -u origin feat/your-feature-name
 gh pr create --repo yuya-take/yuya-claude-code --base main
 ```
-
----
 
 ## ファイル形式
 
@@ -106,11 +102,9 @@ description: 説明
 ガイドライン内容...
 ```
 
----
-
 ## このリポジトリでの開発
 
-このリポジトリの `.claude/` には、配布物から開発に必要なものを symlink で置いている。配布物を直すと、このリポジトリでの動作にもそのまま反映される。
+このリポジトリの `.claude/` には、配布物のうち開発に必要なものを symlink で置いています。配布物を直すと、このリポジトリでの動作にもそのまま反映されます。
 
 | 種類 | 置いているもの |
 |---|---|
@@ -118,25 +112,40 @@ description: 説明
 | agents | `code-reviewer`, `security-reviewer`（`packs/review/agents/` への symlink） |
 | このリポジトリ専用 | `model-tune` — 新しいモデルや Claude Code の仕様変更に合わせて配布物を点検・修正する |
 
-新しい Claude モデルが出たときや、Claude Code のスキル・agent・settings の仕様が変わったときは `/model-tune` を実行する。点検の記録は `.claude/skills/model-tune/history.md` に残る。
+新しい Claude モデルが出たときや、Claude Code のスキル・agent・settings の仕様が変わったときは、`/model-tune` を実行します。点検の記録は `.claude/skills/model-tune/history.md` に残ります。
 
----
+## 変更の配布
 
-## 変更時の作業
+`main` にマージするだけで配布されます（プラグインのバージョンは git のコミット SHA で決まります）。利用者は次の方法で追従します。
+- install.sh の利用者: 同じコマンドを再実行する
+- プラグインの利用者: `/plugin update` の後に `/core:setup` を再実行する
 
-- コミットするだけで配布される（プラグインのバージョンは git コミット SHA ベース）
-- install.sh の利用者は同じコマンドの再実行で、プラグインの利用者は `/plugin update` と `/core:setup` の再実行で追従する
+## リポジトリ構成
 
----
+```text
+yuya-claude-code/
+├── install.sh                 # pack を .claude/ に展開するスクリプト
+├── .claude-plugin/
+│   └── marketplace.json       # marketplace カタログ（pack ごとのプラグインと bundle を列挙）
+├── packs/
+│   └── <pack>/                # 1 pack = 1 プラグイン
+│       ├── .claude-plugin/
+│       │   └── plugin.json    # 説明と依存する pack（install.sh もこれを読む）
+│       ├── skills/ agents/ rules/
+│       ├── hooks/             # hooks.json とフックスクリプト
+│       └── project-settings.json  # 利用先の settings.json にマージする permissions など
+├── bundles/
+│   └── all/                   # 全 pack に依存するだけの bundle プラグイン
+├── mcp/                       # MCP サーバーのプラグイン用（今は空。追加手順は mcp/README.md）
+└── .claude/                   # このリポジトリ自身の開発用（packs/ への symlink と /model-tune）
+```
 
 ## ガイドライン
 
-- 設定はシンプルに保つ
-- 説明を含める
-- 提出前にテストする
-- 既存のパターンに従う
+- 配布物の文面は、利用先のプロジェクトで読まれる前提で書く。このリポジトリ固有の事情は書かない
+- 既存のスキルや rule の書き方に揃える
 - API キーなどの機密情報を含めない
-- 実プロジェクトで動作確認済みのものを優先
+- 実際のプロジェクトで動作を確かめたものを優先する
 - スキル名は Claude Code の組み込みコマンド（`/init`, `/review`, `/code-review`, `/security-review` など）と被らせない
 - `disable-model-invocation: true` は、ユーザーが自分で始めるスキルにだけ付ける。他のスキルや rule の手順でモデルに呼ばせるスキル（`/pr`、`/rv` など）には付けない（付けるとモデルが Skill ツールで呼べず、手順を手で再現することになる）
 - レビュー系 agent は `review` pack に置く（`/rv` と `/dev` が定義ファイルを同じ pack から読むため）。`packs/review/rules/agents.md` の統一出力フォーマットに従い、`/rv` の振り分け表にも追加する
